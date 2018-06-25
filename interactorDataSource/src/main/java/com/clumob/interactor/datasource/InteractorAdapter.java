@@ -12,7 +12,7 @@ public abstract class InteractorAdapter<Item, Ir extends Interactor<Item>> {
     private PublishSubject<AdapterUpdateEvent> updateEventPublisher = PublishSubject.create();
     private int itemCount = 0;
     private int maxCount = -1;
-    private boolean limitCount;
+    private boolean hasMaxLimit;
 
     public abstract void onAttached();
 
@@ -30,6 +30,22 @@ public abstract class InteractorAdapter<Item, Ir extends Interactor<Item>> {
         return itemCount;
     }
 
+    public void setMaxLimit(int limit)  {
+        if(limit < 0) {
+            throw new IllegalArgumentException("Max Limit cannot be < 0");
+        }
+        this.hasMaxLimit = true;
+        this.maxCount = limit;
+        if(maxCount < this.itemCount) {
+            notifyItemsRemoved(maxCount, this.itemCount - maxCount);
+        }
+    }
+
+    public void removeMaxLimit() {
+        this.hasMaxLimit = false;
+    }
+
+
     public abstract InteractorItem<Item, Ir> getItem(int position);
 
     public abstract void onDetached();
@@ -42,7 +58,7 @@ public abstract class InteractorAdapter<Item, Ir extends Interactor<Item>> {
     }
 
     private int computeItemCountOnItemsInserted(int startPosition, int itemCount) {
-        if (limitCount)
+        if (hasMaxLimit)
             return itemCountIfLimitEnabled(startPosition + itemCount);
         else
             return this.itemCount + itemCount;
@@ -50,16 +66,16 @@ public abstract class InteractorAdapter<Item, Ir extends Interactor<Item>> {
 
     protected final void notifyItemsRemoved(int startPosition, int itemsRemoved) {
         final int oldItemCount = this.itemCount;
-        this.itemCount = computeItemCountOnItemsRemoved(startPosition, itemsRemoved);
+        this.itemCount = computeItemCountOnItemsRemoved(oldItemCount, itemsRemoved);
         final int diff = oldItemCount - this.itemCount;
         publishUpdateEvent(startPosition, AdapterUpdateEvent.Type.ITEMS_REMOVED, diff);
     }
 
-    private int computeItemCountOnItemsRemoved(int startPosition, int itemCount) {
-        if (limitCount)
-            return itemCountIfLimitEnabled(startPosition - itemCount);
+    private int computeItemCountOnItemsRemoved(int oldItemCount, int itemCount) {
+        if (hasMaxLimit)
+            return itemCountIfLimitEnabled(oldItemCount - itemCount);
         else
-            return this.itemCount - itemCount;
+            return oldItemCount - itemCount;
     }
 
     private int itemCountIfLimitEnabled(int newItemCount) {

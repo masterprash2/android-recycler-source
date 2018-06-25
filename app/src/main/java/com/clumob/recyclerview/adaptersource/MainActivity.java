@@ -23,6 +23,7 @@ import com.clumob.recyclerview.adapter.ViewHolderProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,8 +65,13 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else {
                     String s = String.valueOf(System.currentTimeMillis());
-                    multiplexAdapter.addAdapter(createInteractorAdapter(String.valueOf(s.charAt(s.length() - 1))));
+                    InteractorAdapter interactorAdapter = createInteractorAdapter(String.valueOf(s.charAt(s.length() - 1)));
+                    int limit = new Random().nextInt(20);
+                    Log.d("LIMIT",s+"-"+limit);
+                    interactorAdapter.setMaxLimit(limit);
+                    multiplexAdapter.addAdapter(interactorAdapter);
                 }
+
                 removeAdapter = !removeAdapter;
                 handler.postDelayed(this, 2000);
             }
