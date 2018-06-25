@@ -6,8 +6,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.clumob.interactor.datasource.AdapterUpdateEvent;
-import com.clumob.interactor.datasource.InteractorAdapter;
+import com.clumob.interactor.datasource.SourceUpdateEvent;
+import com.clumob.interactor.datasource.InteractorSource;
 import com.clumob.interactor.datasource.InteractorItem;
 
 import io.reactivex.observers.DisposableObserver;
@@ -18,7 +18,7 @@ import io.reactivex.observers.DisposableObserver;
 
 public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
-    private final InteractorAdapter interactorAdapter;
+    private final InteractorSource interactorSource;
     private final ViewHolderProvider viewHolderProvider;
     private OnRecyclerItemClickListener itemClickListener;
     private RecyclerView recyclerView;
@@ -36,10 +36,10 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
 
     public RvAdapter(ViewHolderProvider viewHolderProvider,
-                     InteractorAdapter interactorAdapter) {
-        this.interactorAdapter = interactorAdapter;
+                     InteractorSource interactorSource) {
+        this.interactorSource = interactorSource;
         this.viewHolderProvider = viewHolderProvider;
-        setHasStableIds(this.interactorAdapter.hasStableIds());
+        setHasStableIds(this.interactorSource.hasStableIds());
     }
 
     @Override
@@ -51,13 +51,13 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
             this.adapterUpdateEventObserver = null;
         }
         this.adapterUpdateEventObserver = new AdapterUpdateObserver();
-        interactorAdapter.observeAdapterUpdates().subscribe(this.adapterUpdateEventObserver);
-        this.interactorAdapter.onAttached();
+        interactorSource.observeAdapterUpdates().subscribe(this.adapterUpdateEventObserver);
+        this.interactorSource.onAttached();
     }
 
     @Override
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        this.interactorAdapter.onDetached();
+        this.interactorSource.onDetached();
         this.recyclerView = null;
         if (this.adapterUpdateEventObserver != null) {
             this.adapterUpdateEventObserver.dispose();
@@ -86,14 +86,14 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RvViewHolder holder, int position) {
-        InteractorItem item = interactorAdapter.getItem(position);
+        InteractorItem item = interactorSource.getItem(position);
         holder.getItemView().setOnClickListener(onClickListener);
         holder.bind(item.getInteractor(), item.getItem());
     }
 
     @Override
     public long getItemId(int position) {
-        return interactorAdapter.getItemId(position);
+        return interactorSource.getItemId(position);
     }
 
 
@@ -111,41 +111,41 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return interactorAdapter.getItemType(position);
+        return interactorSource.getItemType(position);
     }
 
     @Override
     public int getItemCount() {
-        return interactorAdapter.getItemCount();
+        return interactorSource.getItemCount();
     }
 
     public static interface OnRecyclerItemClickListener {
         public void onRecyclerItemClick(RecyclerView recyclerView, int position);
     }
 
-    private class AdapterUpdateObserver extends DisposableObserver<AdapterUpdateEvent> {
+    private class AdapterUpdateObserver extends DisposableObserver<SourceUpdateEvent> {
 
         @Override
-        public void onNext(AdapterUpdateEvent adapterUpdateEvent) {
+        public void onNext(SourceUpdateEvent sourceUpdateEvent) {
             if (recyclerView == null) {
                 return;
             }
-            switch (adapterUpdateEvent.getType()) {
+            switch (sourceUpdateEvent.getType()) {
 
                 case ITEMS_CHANGED:
-                    notifyItemRangeChanged(adapterUpdateEvent.getPosition(), adapterUpdateEvent.getItemCount());
+                    notifyItemRangeChanged(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_REMOVED:
-                    notifyItemRangeRemoved(adapterUpdateEvent.getPosition(), adapterUpdateEvent.getItemCount());
+                    notifyItemRangeRemoved(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_ADDED:
-                    notifyItemRangeInserted(adapterUpdateEvent.getPosition(), adapterUpdateEvent.getItemCount());
+                    notifyItemRangeInserted(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_MOVED:
-                    notifyItemMoved(adapterUpdateEvent.getPosition(), adapterUpdateEvent.getItemCount());
+                    notifyItemMoved(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case HAS_STABLE_IDS:
-                    setHasStableIds(interactorAdapter.hasStableIds());
+                    setHasStableIds(interactorSource.hasStableIds());
                     break;
             }
         }

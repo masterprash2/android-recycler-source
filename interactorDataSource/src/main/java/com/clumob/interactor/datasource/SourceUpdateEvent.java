@@ -7,7 +7,7 @@ import com.google.auto.value.AutoValue;
  */
 
 @AutoValue
-public abstract class AdapterUpdateEvent {
+public abstract class SourceUpdateEvent {
 
     public enum Type {
         ITEMS_CHANGED,
@@ -23,7 +23,7 @@ public abstract class AdapterUpdateEvent {
     public abstract Builder toBuilder();
 
     public static Builder builder() {
-        return new AutoValue_AdapterUpdateEvent.Builder().setItemCount(-1);
+        return new AutoValue_SourceUpdateEvent.Builder().setItemCount(-1);
     }
 
     @AutoValue.Builder
@@ -31,6 +31,6 @@ public abstract class AdapterUpdateEvent {
         public abstract Builder setType(Type type);
         public abstract Builder setPosition(int position);
         public abstract Builder setItemCount(int itemCount);
-        public abstract AdapterUpdateEvent build();
+        public abstract SourceUpdateEvent build();
     }
 }

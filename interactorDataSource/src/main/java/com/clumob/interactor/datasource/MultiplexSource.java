@@ -9,7 +9,7 @@ import io.reactivex.observers.DisposableObserver;
  * Created by prashant.rathore on 24/06/18.
  */
 
-public class MultiplexAdapter extends InteractorAdapter {
+public class MultiplexSource extends InteractorSource {
 
     private List<AdapterAsItem> adapters = new ArrayList<>();
 
@@ -25,7 +25,7 @@ public class MultiplexAdapter extends InteractorAdapter {
         return false;
     }
 
-    public void addAdapter(InteractorAdapter<?, ?> adapter) {
+    public void addAdapter(InteractorSource<?, ?> adapter) {
         AdapterAsItem item = new AdapterAsItem(adapter);
         if (adapters.size() > 0) {
             AdapterAsItem previousItem = adapters.get(adapters.size() - 1);
@@ -81,7 +81,7 @@ public class MultiplexAdapter extends InteractorAdapter {
         return previous;
     }
 
-    public InteractorAdapter removeAdapter(final int removeAdapterAtPosition) {
+    public InteractorSource removeAdapter(final int removeAdapterAtPosition) {
         AdapterAsItem remove = adapters.remove(removeAdapterAtPosition);
         final int removePositionStart = remove.startPosition;
         int nextAdapterStartPosition = removePositionStart;
@@ -98,11 +98,11 @@ public class MultiplexAdapter extends InteractorAdapter {
 
         int startPosition = 0;
 
-        final InteractorAdapter adapter;
-        final DisposableObserver<AdapterUpdateEvent> updateObserver = new DisposableObserver<AdapterUpdateEvent>() {
+        final InteractorSource adapter;
+        final DisposableObserver<SourceUpdateEvent> updateObserver = new DisposableObserver<SourceUpdateEvent>() {
             @Override
-            public void onNext(AdapterUpdateEvent adapterUpdateEvent) {
-                transformUpdateEvent(adapterUpdateEvent);
+            public void onNext(SourceUpdateEvent sourceUpdateEvent) {
+                transformUpdateEvent(sourceUpdateEvent);
             }
 
             @Override
@@ -116,7 +116,7 @@ public class MultiplexAdapter extends InteractorAdapter {
             }
         };
 
-        void transformUpdateEvent(AdapterUpdateEvent event) {
+        void transformUpdateEvent(SourceUpdateEvent event) {
             final int actualStartPosition = startPosition + event.getPosition();
             switch (event.getType()) {
                 case ITEMS_CHANGED:
@@ -134,7 +134,7 @@ public class MultiplexAdapter extends InteractorAdapter {
         }
 
 
-        AdapterAsItem(InteractorAdapter adapter) {
+        AdapterAsItem(InteractorSource adapter) {
             this.adapter = adapter;
             this.adapter.observeAdapterUpdates().subscribe(updateObserver);
         }

@@ -7,9 +7,9 @@ import io.reactivex.subjects.PublishSubject;
  * Created by prashant.rathore on 24/06/18.
  */
 
-public abstract class InteractorAdapter<Item, Ir extends Interactor<Item>> {
+public abstract class InteractorSource<Item, Ir extends Interactor<Item>> {
 
-    private PublishSubject<AdapterUpdateEvent> updateEventPublisher = PublishSubject.create();
+    private PublishSubject<SourceUpdateEvent> updateEventPublisher = PublishSubject.create();
     private int itemCount = 0;
     private int maxCount = -1;
     private boolean hasMaxLimit;
@@ -18,7 +18,7 @@ public abstract class InteractorAdapter<Item, Ir extends Interactor<Item>> {
 
     public abstract boolean hasStableIds();
 
-    public final Observable<AdapterUpdateEvent> observeAdapterUpdates() {
+    public final Observable<SourceUpdateEvent> observeAdapterUpdates() {
         return updateEventPublisher;
     }
 
@@ -54,7 +54,7 @@ public abstract class InteractorAdapter<Item, Ir extends Interactor<Item>> {
         final int oldItemCount = this.itemCount;
         this.itemCount = computeItemCountOnItemsInserted(startPosition, itemsInserted);
         final int diff = this.itemCount - oldItemCount;
-        publishUpdateEvent(startPosition, AdapterUpdateEvent.Type.ITEMS_ADDED, diff);
+        publishUpdateEvent(startPosition, SourceUpdateEvent.Type.ITEMS_ADDED, diff);
     }
 
     private int computeItemCountOnItemsInserted(int startPosition, int itemCount) {
@@ -68,7 +68,7 @@ public abstract class InteractorAdapter<Item, Ir extends Interactor<Item>> {
         final int oldItemCount = this.itemCount;
         this.itemCount = computeItemCountOnItemsRemoved(oldItemCount, itemsRemoved);
         final int diff = oldItemCount - this.itemCount;
-        publishUpdateEvent(startPosition, AdapterUpdateEvent.Type.ITEMS_REMOVED, diff);
+        publishUpdateEvent(startPosition, SourceUpdateEvent.Type.ITEMS_REMOVED, diff);
     }
 
     private int computeItemCountOnItemsRemoved(int oldItemCount, int itemCount) {
@@ -84,8 +84,8 @@ public abstract class InteractorAdapter<Item, Ir extends Interactor<Item>> {
 
     protected abstract int computeItemCount();
 
-    private void publishUpdateEvent(int startPosition, AdapterUpdateEvent.Type type, int itemCount) {
-        updateEventPublisher.onNext(AdapterUpdateEvent
+    private void publishUpdateEvent(int startPosition, SourceUpdateEvent.Type type, int itemCount) {
+        updateEventPublisher.onNext(SourceUpdateEvent
                 .builder()
                 .setItemCount(itemCount)
                 .setPosition(startPosition)
@@ -94,6 +94,6 @@ public abstract class InteractorAdapter<Item, Ir extends Interactor<Item>> {
     }
 
 
-//    InteractorAdapter<Item,Ir> getRootAdapter(int position);
+//    InteractorSource<Item,Ir> getRootAdapter(int position);
 
 }

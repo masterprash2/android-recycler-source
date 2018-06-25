@@ -1,6 +1,6 @@
 //package com.clumob.interactor.datasource;
 //
-//import com.clumob.recyclerview.section.AdapterUpdateEvent;
+//import com.clumob.recyclerview.section.SourceUpdateEvent;
 //
 //import io.reactivex.Observable;
 //
@@ -8,13 +8,13 @@
 // * Created by prashant.rathore on 24/06/18.
 // */
 //
-//public class SectionInteractorAdapter <Item,Ir extends Interactor<Item>> implements InteractorAdapter<Item,Ir> {
+//public class SectionInteractorAdapter <Item,Ir extends Interactor<Item>> implements InteractorSource<Item,Ir> {
 //
-//    private final Interactor<InteractorAdapter<Item, Ir>> sectionInteractor;
-//    private InteractorAdapter<Item,Ir> contentAdapter;
+//    private final Interactor<InteractorSource<Item, Ir>> sectionInteractor;
+//    private InteractorSource<Item,Ir> contentAdapter;
 //
-//    public SectionInteractorAdapter(Interactor<InteractorAdapter<Item,Ir>> sectionInteractor,
-//                                    InteractorAdapter<Item, Ir> contentAdapter) {
+//    public SectionInteractorAdapter(Interactor<InteractorSource<Item,Ir>> sectionInteractor,
+//                                    InteractorSource<Item, Ir> contentAdapter) {
 //        this.contentAdapter = contentAdapter;
 //        this.sectionInteractor = sectionInteractor;
 //    }
@@ -32,7 +32,7 @@
 //    }
 //
 //    @Override
-//    public Observable<AdapterUpdateEvent> observeAdapterUpdates() {
+//    public Observable<SourceUpdateEvent> observeAdapterUpdates() {
 //        return contentAdapter.observeAdapterUpdates();
 //    }
 //

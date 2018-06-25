@@ -7,7 +7,7 @@ import java.util.List;
  * Created by prashant.rathore on 24/06/18.
  */
 
-public class ArrayInteractorAdapter<Item, Ir extends Interactor<Item>> extends InteractorAdapter<Item, Ir> {
+public class ArraySource<Item, Ir extends Interactor<Item>> extends InteractorSource<Item, Ir> {
 
     private List<InteractorItem<Item, Ir>> interactorItems = new ArrayList<>();
 
