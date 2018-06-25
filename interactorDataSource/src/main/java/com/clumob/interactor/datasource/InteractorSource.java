@@ -22,9 +22,13 @@ public abstract class InteractorSource<Item, Ir extends Interactor<Item>> {
         return updateEventPublisher;
     }
 
-    public abstract long getItemId(int position);
+    final public long getItemId(int position) {
+        return getItem(position).getId();
+    }
 
-    public abstract int getItemType(int position);
+    final public int getItemType(int position) {
+        return getItem(position).getType();
+    }
 
     public int getItemCount() {
         return itemCount;
@@ -43,6 +47,12 @@ public abstract class InteractorSource<Item, Ir extends Interactor<Item>> {
 
     public void removeMaxLimit() {
         this.hasMaxLimit = false;
+        final int oldItemCount = this.itemCount;
+        final int newItemCount = computeItemCount();
+        if(oldItemCount < newItemCount) {
+            final int diff = newItemCount - oldItemCount;
+            notifyItemsInserted(oldItemCount,diff);
+        }
     }
 
 

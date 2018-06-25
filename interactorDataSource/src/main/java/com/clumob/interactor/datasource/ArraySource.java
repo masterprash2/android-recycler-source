@@ -35,16 +35,6 @@ public class ArraySource<Item, Ir extends Interactor<Item>> extends InteractorSo
     }
 
     @Override
-    public long getItemId(int position) {
-        return interactorItems.get(position).getId();
-    }
-
-    @Override
-    public int getItemType(int position) {
-        return interactorItems.get(position).getType();
-    }
-
-    @Override
     protected int computeItemCount() {
         return interactorItems.size();
     }

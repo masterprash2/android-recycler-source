@@ -36,18 +36,6 @@ public class MultiplexSource extends InteractorSource {
     }
 
     @Override
-    public long getItemId(int position) {
-        AdapterAsItem item = decodeAdapterItem(position);
-        return item.adapter.getItemId(position - item.startPosition);
-    }
-
-    @Override
-    public int getItemType(int position) {
-        AdapterAsItem item = decodeAdapterItem(position);
-        return item.adapter.getItemType(position - item.startPosition);
-    }
-
-    @Override
     protected int computeItemCount() {
         if (adapters.size() > 0) {
             AdapterAsItem item = adapters.get(adapters.size() - 1);
