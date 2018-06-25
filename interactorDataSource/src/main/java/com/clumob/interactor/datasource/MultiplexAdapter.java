@@ -81,6 +81,19 @@ public class MultiplexAdapter extends InteractorAdapter {
         return previous;
     }
 
+    public InteractorAdapter removeAdapter(final int removeAdapterAtPosition) {
+        AdapterAsItem remove = adapters.remove(removeAdapterAtPosition);
+        final int removePositionStart = remove.startPosition;
+        int nextAdapterStartPosition = removePositionStart;
+        for(int index = removeAdapterAtPosition ; index < adapters.size() ; index++) {
+            AdapterAsItem adapterAsItem = adapters.get(index);
+            adapterAsItem.startPosition = nextAdapterStartPosition;
+            nextAdapterStartPosition = adapterAsItem.startPosition + adapterAsItem.adapter.getItemCount();
+        }
+        notifyItemsRemoved(removePositionStart,remove.adapter.getItemCount());
+        return remove.adapter;
+    }
+
     class AdapterAsItem {
 
         int startPosition = 0;

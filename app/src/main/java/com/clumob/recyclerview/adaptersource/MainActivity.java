@@ -48,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
         return new RvAdapter(createViewHolderProvider(), createMultiplexAdapterSample());
     }
 
+    private boolean removeAdapter;
+
     private MultiplexAdapter createMultiplexAdapterSample() {
         final MultiplexAdapter multiplexAdapter = new MultiplexAdapter();
         multiplexAdapter.addAdapter(createInteractorAdapter("a"));
@@ -57,8 +59,14 @@ public class MainActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                String s = String.valueOf(System.currentTimeMillis());
-                multiplexAdapter.addAdapter(createInteractorAdapter(String.valueOf(s.charAt(s.length() - 1))));
+                if(removeAdapter) {
+                    multiplexAdapter.removeAdapter(1);
+                }
+                else {
+                    String s = String.valueOf(System.currentTimeMillis());
+                    multiplexAdapter.addAdapter(createInteractorAdapter(String.valueOf(s.charAt(s.length() - 1))));
+                }
+                removeAdapter = !removeAdapter;
                 handler.postDelayed(this, 2000);
             }
         });
