@@ -1,6 +1,4 @@
-package com.clumob.recyclerview.adapter;
-
-import com.clumob.recyclerview.section.interactor.Interactor;
+package com.clumob.interactor.datasource;
 
 /**
  * Created by prashant.rathore on 24/06/18.

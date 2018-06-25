@@ -1,0 +1,29 @@
+apply plugin: 'java-library'
+apply plugin: "net.ltgt.apt-idea"
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.13"
+    }
+}
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    apt 'com.google.auto.value:auto-value:1.5.2'
+    compileOnly 'com.jakewharton.auto.value:auto-value-annotations:1.5'
+
+    apt 'com.google.auto.factory:auto-factory:1.0-beta5'
+    compileOnly 'com.episode6.hackit.auto.factory:auto-factory-annotations:1.0-beta5'
+
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.9'
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"

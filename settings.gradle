@@ -1,1 +1,1 @@
-include ':app', ':rvDataSource', ':rvAdapter'
+include ':app', ':rvDataSource', ':rvAdapter', ':interactorDataSource'

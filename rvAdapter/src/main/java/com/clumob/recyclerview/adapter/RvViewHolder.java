@@ -3,13 +3,13 @@ package com.clumob.recyclerview.adapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.clumob.recyclerview.section.interactor.Interactor;
+import com.clumob.interactor.datasource.Interactor;
 
 /**
  * Created by prashant.rathore on 28/05/18.
  */
 
-public abstract class RvViewHolder<Item,Ir extends Interactor<Item>> extends RecyclerView.ViewHolder {
+public abstract class RvViewHolder<Item, Ir extends Interactor<Item>> extends RecyclerView.ViewHolder {
 
     private final View itemView;
     private Item item;
@@ -18,6 +18,14 @@ public abstract class RvViewHolder<Item,Ir extends Interactor<Item>> extends Rec
     public RvViewHolder(View itemView) {
         super(itemView);
         this.itemView = itemView;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public Ir getInteractor() {
+        return interactor;
     }
 
     public View getItemView() {

@@ -1,4 +1,4 @@
-package com.clumob.recyclerview.section;
+package com.clumob.interactor.datasource;
 
 import com.google.auto.value.AutoValue;
 
@@ -20,6 +20,7 @@ public abstract class AdapterUpdateEvent {
     public abstract Type getType();
     public abstract int getPosition();
     public abstract int getItemCount();
+    public abstract Builder toBuilder();
 
     public static Builder builder() {
         return new AutoValue_AdapterUpdateEvent.Builder().setItemCount(-1);

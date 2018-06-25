@@ -2,7 +2,7 @@ package com.clumob.recyclerview.adapter;
 
 import android.view.ViewGroup;
 
-import com.clumob.recyclerview.section.interactor.Interactor;
+import com.clumob.interactor.datasource.Interactor;
 
 /**
  * Created by prashant.rathore on 28/05/18.

@@ -6,7 +6,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.clumob.recyclerview.section.AdapterUpdateEvent;
+import com.clumob.interactor.datasource.AdapterUpdateEvent;
+import com.clumob.interactor.datasource.InteractorAdapter;
+import com.clumob.interactor.datasource.InteractorItem;
 
 import io.reactivex.observers.DisposableObserver;
 

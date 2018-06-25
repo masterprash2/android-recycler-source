@@ -1,4 +1,4 @@
-package com.clumob.recyclerview.section.interactor;
+package com.clumob.interactor.datasource;
 
 /**
  * Created by prashant.rathore on 20/06/18.
