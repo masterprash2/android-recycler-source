@@ -29,6 +29,13 @@ public class ArraySource<Item, Ir extends Interactor<Item>> extends InteractorSo
         this.interactorItems = newItems;
     }
 
+    public void replaceItem(int index, InteractorItem<Item,Ir> item) {
+        this.interactorItems.set(index,item);
+        item.onCreate();
+        notifyItemsChanged(index,1);
+    }
+
+
     @Override
     public boolean hasStableIds() {
         return false;

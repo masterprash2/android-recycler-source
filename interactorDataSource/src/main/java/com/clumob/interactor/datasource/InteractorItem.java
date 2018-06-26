@@ -10,12 +10,16 @@ public class InteractorItem<Item,Ir extends Interactor<Item>> {
     private Item item;
     private int type;
     private long id;
+    private Item up;
 
     public InteractorItem(Ir interactor, Item item) {
         this.interactor = interactor;
         this.item = item;
     }
 
+    public InteractorItem(Ir interactor) {
+        this.interactor = interactor;
+    }
 
     public int getType() {
         return type;
@@ -40,5 +44,10 @@ public class InteractorItem<Item,Ir extends Interactor<Item>> {
 
     public void onCreate() {
         interactor.onCreate(item);
+    }
+
+    public InteractorItem<Item,Ir> mutate(Item item) {
+        this.item = item;
+        return this;
     }
 }

@@ -73,12 +73,12 @@ public class MultiplexSource extends InteractorSource {
         AdapterAsItem remove = adapters.remove(removeAdapterAtPosition);
         final int removePositionStart = remove.startPosition;
         int nextAdapterStartPosition = removePositionStart;
-        for(int index = removeAdapterAtPosition ; index < adapters.size() ; index++) {
+        for (int index = removeAdapterAtPosition; index < adapters.size(); index++) {
             AdapterAsItem adapterAsItem = adapters.get(index);
             adapterAsItem.startPosition = nextAdapterStartPosition;
             nextAdapterStartPosition = adapterAsItem.startPosition + adapterAsItem.adapter.getItemCount();
         }
-        notifyItemsRemoved(removePositionStart,remove.adapter.getItemCount());
+        notifyItemsRemoved(removePositionStart, remove.adapter.getItemCount());
         return remove.adapter;
     }
 
@@ -108,8 +108,10 @@ public class MultiplexSource extends InteractorSource {
             final int actualStartPosition = startPosition + event.getPosition();
             switch (event.getType()) {
                 case ITEMS_CHANGED:
+                    notifyItemsChanged(actualStartPosition, event.getItemCount());
                     break;
                 case ITEMS_REMOVED:
+                    notifyItemsRemoved(actualStartPosition, event.getItemCount());
                     break;
                 case ITEMS_ADDED:
                     notifyItemsInserted(actualStartPosition, event.getItemCount());

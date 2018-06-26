@@ -103,6 +103,12 @@ public abstract class InteractorSource<Item, Ir extends Interactor<Item>> {
                 .build());
     }
 
+    public void notifyItemsChanged(int startIndex, int itemCount) {
+        if(this.itemCount > startIndex) {
+            publishUpdateEvent(startIndex, SourceUpdateEvent.Type.ITEMS_CHANGED, Math.min(this.itemCount - startIndex, itemCount));
+        }
+    }
+
 
 //    InteractorSource<Item,Ir> getRootAdapter(int position);
 
