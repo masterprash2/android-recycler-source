@@ -28,7 +28,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
         @Override
         public void onClick(View view) {
             if (recyclerView != null && itemClickListener != null) {
-                RecyclerView.ViewHolder childViewHolder = recyclerView.getChildViewHolder(recyclerView);
+                RecyclerView.ViewHolder childViewHolder = recyclerView.getChildViewHolder(view);
                 itemClickListener.onRecyclerItemClick(recyclerView, childViewHolder.getAdapterPosition());
             }
         }
