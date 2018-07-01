@@ -6,9 +6,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.clumob.interactor.datasource.SourceUpdateEvent;
-import com.clumob.interactor.datasource.InteractorSource;
-import com.clumob.interactor.datasource.InteractorItem;
+import com.clumob.list.presenter.source.Presenter;
+import com.clumob.list.presenter.source.PresenterSource;
+import com.clumob.list.presenter.source.SourceUpdateEvent;
 
 import io.reactivex.observers.DisposableObserver;
 
@@ -18,7 +18,7 @@ import io.reactivex.observers.DisposableObserver;
 
 public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
-    private final InteractorSource interactorSource;
+    private final PresenterSource presenterSource;
     private final ViewHolderProvider viewHolderProvider;
     private OnRecyclerItemClickListener itemClickListener;
     private RecyclerView recyclerView;
@@ -36,10 +36,10 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
 
     public RvAdapter(ViewHolderProvider viewHolderProvider,
-                     InteractorSource interactorSource) {
-        this.interactorSource = interactorSource;
+                     PresenterSource presenterSource) {
+        this.presenterSource = presenterSource;
         this.viewHolderProvider = viewHolderProvider;
-        setHasStableIds(this.interactorSource.hasStableIds());
+        setHasStableIds(this.presenterSource.hasStableIds());
     }
 
     @Override
@@ -51,13 +51,13 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
             this.adapterUpdateEventObserver = null;
         }
         this.adapterUpdateEventObserver = new AdapterUpdateObserver();
-        interactorSource.observeAdapterUpdates().subscribe(this.adapterUpdateEventObserver);
-        this.interactorSource.onAttached();
+        presenterSource.observeAdapterUpdates().subscribe(this.adapterUpdateEventObserver);
+        this.presenterSource.onAttached();
     }
 
     @Override
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        this.interactorSource.onDetached();
+        this.presenterSource.onDetached();
         this.recyclerView = null;
         if (this.adapterUpdateEventObserver != null) {
             this.adapterUpdateEventObserver.dispose();
@@ -86,14 +86,14 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RvViewHolder holder, int position) {
-        InteractorItem item = interactorSource.getItem(position);
+        Presenter item = presenterSource.getItem(position);
         holder.getItemView().setOnClickListener(onClickListener);
-        holder.bind(item.getInteractor(), item.getItem());
+        holder.bind(item);
     }
 
     @Override
     public long getItemId(int position) {
-        return interactorSource.getItemId(position);
+        return presenterSource.getItemId(position);
     }
 
 
@@ -111,12 +111,12 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return interactorSource.getItemType(position);
+        return presenterSource.getItemType(position);
     }
 
     @Override
     public int getItemCount() {
-        return interactorSource.getItemCount();
+        return presenterSource.getItemCount();
     }
 
     public static interface OnRecyclerItemClickListener {
@@ -145,7 +145,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
                     notifyItemMoved(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case HAS_STABLE_IDS:
-                    setHasStableIds(interactorSource.hasStableIds());
+                    setHasStableIds(presenterSource.hasStableIds());
                     break;
             }
         }

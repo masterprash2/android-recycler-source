@@ -1,4 +1,7 @@
-package com.clumob.recyclerview.section.interactor;
+package com.clumob.recyclerview.section.presenter;
+
+
+import com.clumob.list.presenter.source.Presenter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +10,12 @@ import java.util.List;
  * Created by prashant.rathore on 20/06/18.
  */
 
-public class ArrayInteractorSection<VM, IN extends Interactor> extends InteractorSection<VM,IN> {
+public class ArrayPresenterSection<IN extends Presenter> extends PresenterSection<IN> {
 
-    private List<InteractorSectionItem<VM,IN>> items = new ArrayList<>();
+    private List<IN> items = new ArrayList<>();
 
     @Override
-    public InteractorSectionItem<VM, IN> getItem(int position) {
+    public IN getItem(int position) {
         return items.get(position);
     }
 

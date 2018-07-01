@@ -1,5 +1,8 @@
 package com.clumob.recyclerview.section;
 
+import com.clumob.list.presenter.source.Presenter;
+import com.clumob.list.presenter.source.SourceUpdateEvent;
+
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
@@ -7,11 +10,11 @@ import io.reactivex.subjects.PublishSubject;
  * Created by prashant.rathore on 19/06/18.
  */
 
-public abstract class Section<T extends Section.SectionItem> {
+public abstract class Section<T extends Presenter> {
 
     private int itemCount;
 
-    private PublishSubject<AdapterUpdateEvent> adapterUpdatePublisher = PublishSubject.create();
+    private PublishSubject<SourceUpdateEvent> adapterUpdatePublisher = PublishSubject.create();
 
     public abstract T getItem(int position);
 
@@ -25,7 +28,7 @@ public abstract class Section<T extends Section.SectionItem> {
         return false;
     }
 
-    public final Observable<AdapterUpdateEvent> observeAdapterUpdates() {
+    public final Observable<SourceUpdateEvent> observeAdapterUpdates() {
         return adapterUpdatePublisher;
     }
 
@@ -35,23 +38,20 @@ public abstract class Section<T extends Section.SectionItem> {
 
     protected abstract int computeItemCount();
 
+    public void onCreate(int index) {
+
+    }
+
     public void onAttach(int index) {
 
     }
 
-    public void onShow(int index) {
+    public void onDettach(int index) {
 
     }
 
-    public void onHide(int index) {
+    public void onDestroy(int index) {
 
     }
 
-    public void onDetach(int index) {
-
-    }
-
-    public interface SectionItem {
-        public int getType();
-    }
 }

@@ -12,11 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.clumob.interactor.datasource.ArraySource;
-import com.clumob.interactor.datasource.Interactor;
-import com.clumob.interactor.datasource.InteractorSource;
-import com.clumob.interactor.datasource.InteractorItem;
-import com.clumob.interactor.datasource.MultiplexSource;
+import com.clumob.list.presenter.source.ArraySource;
+import com.clumob.list.presenter.source.MultiplexSource;
+import com.clumob.list.presenter.source.Presenter;
+import com.clumob.list.presenter.source.PresenterSource;
 import com.clumob.recyclerview.adapter.RvAdapter;
 import com.clumob.recyclerview.adapter.RvViewHolder;
 import com.clumob.recyclerview.adapter.ViewHolderProvider;
@@ -53,23 +52,22 @@ public class MainActivity extends AppCompatActivity {
 
     private MultiplexSource createMultiplexAdapterSample() {
         final MultiplexSource multiplexSource = new MultiplexSource();
-        multiplexSource.addAdapter(createInteractorAdapter("a"));
-        multiplexSource.addAdapter(createInteractorAdapter("b"));
-        multiplexSource.addAdapter(createInteractorAdapter("c"));
+        multiplexSource.addAdapter(createPresenterAdapter("a"));
+        multiplexSource.addAdapter(createPresenterAdapter("b"));
+        multiplexSource.addAdapter(createPresenterAdapter("c"));
         final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if(removeAdapter) {
+                if (removeAdapter) {
                     multiplexSource.removeAdapter(1);
-                }
-                else {
+                } else {
                     String s = String.valueOf(System.currentTimeMillis());
-                    InteractorSource interactorSource = createInteractorAdapter(String.valueOf(s.charAt(s.length() - 1)));
+                    PresenterSource presenterSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
                     int limit = new Random().nextInt(20);
-                    Log.d("LIMIT",s+"-"+limit);
-                    interactorSource.setMaxLimit(limit);
-                    multiplexSource.addAdapter(interactorSource);
+                    Log.d("LIMIT", s + "-" + limit);
+                    presenterSource.setMaxLimit(limit);
+                    multiplexSource.addAdapter(presenterSource);
                 }
 
                 removeAdapter = !removeAdapter;
@@ -79,52 +77,75 @@ public class MainActivity extends AppCompatActivity {
         return multiplexSource;
     }
 
-    private InteractorSource createInteractorAdapter(String d) {
-        ArraySource<Object, Interactor<Object>> arraySource = new ArraySource();
-        List<InteractorItem<Object, Interactor<Object>>> items = new ArrayList<>();
+    private PresenterSource createPresenterAdapter(String d) {
+        ArraySource<ItemPresenter> arraySource = new ArraySource();
+        List<ItemPresenter> items = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
-            items.add(new InteractorItem<Object, Interactor<Object>>(createInteractor(), d + " = Object " + i));
+            items.add(createPresenter(d + " = Object " + i));
         }
         arraySource.switchItems(items);
         return arraySource;
     }
 
-    private Interactor<Object> createInteractor() {
-        return new Interactor<Object>() {
-            @Override
-            public void onCreate(Object o) {
-                Log.d("OnCreate", o.toString());
-            }
+    private ItemPresenter createPresenter(String data) {
+        return new ItemPresenter(data);
+    }
 
-            @Override
-            public void onAttach(Object o) {
-                Log.d("OnAttach", o.toString());
-            }
+    static class ItemPresenter implements Presenter {
 
-            @Override
-            public void onDetach(Object o) {
-                Log.d("OnDetach", o.toString());
-            }
+        final String data;
 
-            @Override
-            public void onDestroy(Object o) {
-                Log.d("OnDestroy", o.toString());
-            }
-        };
+        public ItemPresenter(String data) {
+            this.data = data;
+        }
+
+        public String getData() {
+            return data;
+        }
+
+        @Override
+        public void onCreate() {
+
+        }
+
+        @Override
+        public void onAttach() {
+
+        }
+
+        @Override
+        public void onDetach() {
+
+        }
+
+        @Override
+        public void onDestroy() {
+
+        }
+
+        @Override
+        public int getType() {
+            return 0;
+        }
+
+        @Override
+        public long getId() {
+            return 0;
+        }
     }
 
 
     private ViewHolderProvider createViewHolderProvider() {
         return new ViewHolderProvider() {
             @Override
-            public RvViewHolder<?, ? extends Interactor<?>> provideViewHolder(ViewGroup parent, int type) {
+            public RvViewHolder<ItemPresenter> provideViewHolder(ViewGroup parent, int type) {
                 View inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
-                return new RvViewHolder<Object, Interactor<Object>>(inflate) {
+                return new RvViewHolder<ItemPresenter>(inflate) {
 
                     @Override
                     protected void bindView() {
                         TextView tv = getItemView().findViewById(R.id.text);
-                        tv.setText(getItem().toString());
+                        tv.setText(getPresenter().data);
                     }
 
                     @Override
@@ -135,19 +156,5 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-//    private RvAdapter createSectionInteractorAdapterSample() {
-//        return new RvAdapter(createViewHolderProvider(), createSectionInteractorAdapter());
-//    }
-//
-//    private InteractorSource createSectionInteractorAdapter() {
-//        return new SectionInteractorAdapter(createSectionInteractor(), createSectionContentAdapter());
-//    }
 
-    private Interactor<InteractorSource> createSectionInteractor() {
-        return null;
-    }
-
-    private InteractorSource createSectionContentAdapter() {
-        return null;
-    }
 }

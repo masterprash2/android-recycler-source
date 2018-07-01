@@ -23,6 +23,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.1.9'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(path: ':presenterSource')
 }
 
 sourceCompatibility = "1.7"

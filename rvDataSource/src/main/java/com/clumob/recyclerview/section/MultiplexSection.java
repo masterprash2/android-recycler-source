@@ -1,5 +1,7 @@
 package com.clumob.recyclerview.section;
 
+import com.clumob.list.presenter.source.Presenter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,12 +9,12 @@ import java.util.List;
  * Created by prashant.rathore on 19/06/18.
  */
 
-public class MultiplexSection<T extends Section.SectionItem> extends Section<T> {
+public class MultiplexSection<T extends Presenter> extends Section<T> {
 
     private List<Section<T>> sections = new ArrayList<>();
 
     public void insert(int index, Section section) {
-        this.sections.add(index,section);
+        this.sections.add(index, section);
     }
 
     public void addToBottom(Section section) {
@@ -20,7 +22,7 @@ public class MultiplexSection<T extends Section.SectionItem> extends Section<T> 
     }
 
     public void addOnTop(Section section) {
-        this.sections.add(0,section);
+        this.sections.add(0, section);
     }
 
     @Override
@@ -36,7 +38,7 @@ public class MultiplexSection<T extends Section.SectionItem> extends Section<T> 
     @Override
     protected int computeItemCount() {
         int count = 0;
-        for(Section section : this.sections) {
+        for (Section section : this.sections) {
             count += section.getItemCount();
         }
         return count;

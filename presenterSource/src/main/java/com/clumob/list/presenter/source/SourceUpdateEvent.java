@@ -1,4 +1,4 @@
-package com.clumob.interactor.datasource;
+package com.clumob.list.presenter.source;
 
 import com.google.auto.value.AutoValue;
 

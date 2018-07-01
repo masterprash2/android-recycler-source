@@ -1,5 +1,7 @@
 package com.clumob.recyclerview.section;
 
+import com.clumob.list.presenter.source.Presenter;
+
 /**
  * Created by prashant.rathore on 19/06/18.
  */
@@ -32,12 +34,11 @@ public class HeaderWithChildrenSection extends Section {
     }
 
     @Override
-    public SectionItem getItem(int position) {
+    public Presenter getItem(int position) {
         int headerCount = getHeaderCount();
-        if(position < headerCount - 1) {
+        if (position < headerCount - 1) {
             return header.getItem(position);
-        }
-        else {
+        } else {
             return children.getItem(position - headerCount - 1);
         }
     }

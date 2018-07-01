@@ -1,4 +1,4 @@
-package com.clumob.interactor.datasource;
+package com.clumob.list.presenter.source;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
@@ -7,7 +7,7 @@ import io.reactivex.subjects.PublishSubject;
  * Created by prashant.rathore on 24/06/18.
  */
 
-public abstract class InteractorSource<Item, Ir extends Interactor<Item>> {
+public abstract class PresenterSource<P extends Presenter> {
 
     private PublishSubject<SourceUpdateEvent> updateEventPublisher = PublishSubject.create();
     private int itemCount = 0;
@@ -56,7 +56,7 @@ public abstract class InteractorSource<Item, Ir extends Interactor<Item>> {
     }
 
 
-    public abstract InteractorItem<Item, Ir> getItem(int position);
+    public abstract P getItem(int position);
 
     public abstract void onDetached();
 
@@ -110,6 +110,6 @@ public abstract class InteractorSource<Item, Ir extends Interactor<Item>> {
     }
 
 
-//    InteractorSource<Item,Ir> getRootAdapter(int position);
+//    PresenterSource<Item,P> getRootAdapter(int position);
 
 }

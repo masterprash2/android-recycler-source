@@ -1,4 +1,4 @@
-package com.clumob.interactor.datasource;
+package com.clumob.list.presenter.source;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import io.reactivex.observers.DisposableObserver;
  * Created by prashant.rathore on 24/06/18.
  */
 
-public class MultiplexSource extends InteractorSource {
+public class MultiplexSource extends PresenterSource<Presenter> {
 
     private List<AdapterAsItem> adapters = new ArrayList<>();
 
@@ -25,7 +25,7 @@ public class MultiplexSource extends InteractorSource {
         return false;
     }
 
-    public void addAdapter(InteractorSource<?, ?> adapter) {
+    public void addAdapter(PresenterSource<? extends Presenter> adapter) {
         AdapterAsItem item = new AdapterAsItem(adapter);
         if (adapters.size() > 0) {
             AdapterAsItem previousItem = adapters.get(adapters.size() - 1);
@@ -45,7 +45,7 @@ public class MultiplexSource extends InteractorSource {
     }
 
     @Override
-    public InteractorItem getItem(int position) {
+    public Presenter getItem(int position) {
         AdapterAsItem item = decodeAdapterItem(position);
         return item.adapter.getItem(position - item.startPosition);
     }
@@ -69,7 +69,7 @@ public class MultiplexSource extends InteractorSource {
         return previous;
     }
 
-    public InteractorSource removeAdapter(final int removeAdapterAtPosition) {
+    public PresenterSource removeAdapter(final int removeAdapterAtPosition) {
         AdapterAsItem remove = adapters.remove(removeAdapterAtPosition);
         final int removePositionStart = remove.startPosition;
         int nextAdapterStartPosition = removePositionStart;
@@ -86,7 +86,7 @@ public class MultiplexSource extends InteractorSource {
 
         int startPosition = 0;
 
-        final InteractorSource adapter;
+        final PresenterSource adapter;
         final DisposableObserver<SourceUpdateEvent> updateObserver = new DisposableObserver<SourceUpdateEvent>() {
             @Override
             public void onNext(SourceUpdateEvent sourceUpdateEvent) {
@@ -124,7 +124,7 @@ public class MultiplexSource extends InteractorSource {
         }
 
 
-        AdapterAsItem(InteractorSource adapter) {
+        AdapterAsItem(PresenterSource adapter) {
             this.adapter = adapter;
             this.adapter.observeAdapterUpdates().subscribe(updateObserver);
         }
