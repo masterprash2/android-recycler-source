@@ -10,10 +10,12 @@ import com.google.auto.value.AutoValue;
 public abstract class SourceUpdateEvent {
 
     public enum Type {
+        UPDATE_BEGINS,
         ITEMS_CHANGED,
         ITEMS_REMOVED,
         ITEMS_ADDED,
         ITEMS_MOVED,
+        UPDATE_ENDS,
         HAS_STABLE_IDS
     }
 

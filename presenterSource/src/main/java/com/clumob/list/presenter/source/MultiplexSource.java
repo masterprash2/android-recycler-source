@@ -12,12 +12,20 @@ import io.reactivex.observers.DisposableObserver;
 public class MultiplexSource extends PresenterSource<Presenter> {
 
     private List<AdapterAsItem> adapters = new ArrayList<>();
+    private boolean isAttached;
 
     @Override
     public void onAttached() {
+        isAttached = true;
         for (AdapterAsItem item : adapters) {
             item.adapter.onAttached();
         }
+    }
+
+    @Override
+    public void onItemAttached(int position) {
+        AdapterAsItem adapterAsItem = decodeAdapterItem(position);
+        adapterAsItem.adapter.onItemAttached(position - adapterAsItem.startPosition);
     }
 
     @Override
@@ -32,6 +40,9 @@ public class MultiplexSource extends PresenterSource<Presenter> {
             item.startPosition = previousItem.startPosition + previousItem.adapter.getItemCount();
         }
         adapters.add(item);
+        if(isAttached) {
+            item.adapter.onAttached();
+        }
         notifyItemsInserted(item.startPosition, item.adapter.getItemCount());
     }
 
@@ -51,10 +62,17 @@ public class MultiplexSource extends PresenterSource<Presenter> {
     }
 
     @Override
+    public void onItemDetached(int position) {
+        AdapterAsItem adapterAsItem = decodeAdapterItem(position);
+        adapterAsItem.adapter.onItemDetached(position - adapterAsItem.startPosition);
+    }
+
+    @Override
     public void onDetached() {
         for (AdapterAsItem item : adapters) {
             item.adapter.onDetached();
         }
+        isAttached = false;
     }
 
     private AdapterAsItem decodeAdapterItem(int position) {
@@ -67,6 +85,20 @@ public class MultiplexSource extends PresenterSource<Presenter> {
             }
         }
         return previous;
+    }
+
+    @Override
+    public int getItemPosition(Presenter item) {
+        int top = 0;
+        int itemPosition = -1;
+        for (AdapterAsItem adapterAsItem : adapters) {
+            int foundPosition = adapterAsItem.adapter.getItemPosition(item);
+            if(foundPosition >= 0) {
+                itemPosition = top + foundPosition;
+                break;
+            }
+        }
+        return itemPosition;
     }
 
     public PresenterSource removeAdapter(final int removeAdapterAtPosition) {
@@ -107,6 +139,9 @@ public class MultiplexSource extends PresenterSource<Presenter> {
         void transformUpdateEvent(SourceUpdateEvent event) {
             final int actualStartPosition = startPosition + event.getPosition();
             switch (event.getType()) {
+                case UPDATE_BEGINS:
+                    beginUpdates();
+                    break;
                 case ITEMS_CHANGED:
                     notifyItemsChanged(actualStartPosition, event.getItemCount());
                     break;
@@ -118,8 +153,12 @@ public class MultiplexSource extends PresenterSource<Presenter> {
                     break;
                 case ITEMS_MOVED:
                     break;
+                case UPDATE_ENDS:
+                    endUpdates();
+                    break;
                 case HAS_STABLE_IDS:
                     break;
+
             }
         }
 

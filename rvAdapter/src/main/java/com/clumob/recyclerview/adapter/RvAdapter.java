@@ -131,7 +131,8 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
                 return;
             }
             switch (sourceUpdateEvent.getType()) {
-
+                case UPDATE_BEGINS:
+                    break;
                 case ITEMS_CHANGED:
                     notifyItemRangeChanged(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
@@ -143,6 +144,8 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
                     break;
                 case ITEMS_MOVED:
                     notifyItemMoved(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
+                    break;
+                case UPDATE_ENDS:
                     break;
                 case HAS_STABLE_IDS:
                     setHasStableIds(presenterSource.hasStableIds());

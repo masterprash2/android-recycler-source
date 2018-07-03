@@ -20,13 +20,16 @@ public class ArraySource<P extends Presenter> extends PresenterSource<P> {
 
     public void switchItems(List<P> newItems) {
         int diff = newItems.size() - this.presenters.size();
+        beginUpdates();
         if (diff > 0) {
             notifyItemsInserted(this.presenters.size(), diff);
         } else {
             notifyItemsRemoved(newItems.size(), diff * (-1));
         }
+        endUpdates();
         this.presenters = newItems;
     }
+
 
     public void replaceItem(int index, P item) {
         this.presenters.set(index, item);
@@ -34,6 +37,10 @@ public class ArraySource<P extends Presenter> extends PresenterSource<P> {
         notifyItemsChanged(index, 1);
     }
 
+    @Override
+    public int getItemPosition(P item) {
+        return this.presenters.indexOf(item);
+    }
 
     @Override
     public boolean hasStableIds() {

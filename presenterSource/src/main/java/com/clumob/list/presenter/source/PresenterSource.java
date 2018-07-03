@@ -16,6 +16,8 @@ public abstract class PresenterSource<P extends Presenter> {
 
     public abstract void onAttached();
 
+    public abstract void onItemAttached(int position);
+
     public abstract boolean hasStableIds();
 
     public final Observable<SourceUpdateEvent> observeAdapterUpdates() {
@@ -55,8 +57,11 @@ public abstract class PresenterSource<P extends Presenter> {
         }
     }
 
+    public abstract int getItemPosition(P item);
 
     public abstract P getItem(int position);
+
+    public abstract void onItemDetached(int position);
 
     public abstract void onDetached();
 
@@ -107,6 +112,14 @@ public abstract class PresenterSource<P extends Presenter> {
         if(this.itemCount > startIndex) {
             publishUpdateEvent(startIndex, SourceUpdateEvent.Type.ITEMS_CHANGED, Math.min(this.itemCount - startIndex, itemCount));
         }
+    }
+
+    public void endUpdates() {
+        publishUpdateEvent(0, SourceUpdateEvent.Type.UPDATE_ENDS,0);
+    }
+
+    public void beginUpdates() {
+        publishUpdateEvent(0, SourceUpdateEvent.Type.UPDATE_BEGINS,0);
     }
 
 
