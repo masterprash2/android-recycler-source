@@ -38,7 +38,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
     @Override
     public void setViewInteractor(ViewInteractor viewInteractor) {
         super.setViewInteractor(viewInteractor);
-        for(PaginatedSourceItem item : sources) {
+        for (PaginatedSourceItem item : sources) {
             item.source.setViewInteractor(viewInteractor);
         }
     }
@@ -65,8 +65,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
             }
         }
         PaginatedSourceItem adapterAsItem = decodeAdapterItem(position);
-        if(adapterAsItem != null) {
-            System.out.println();
+        if (adapterAsItem != null) {
             adapterAsItem.source.onItemAttached(position - adapterAsItem.startPosition);
         }
 
@@ -80,12 +79,13 @@ public class PaginatedSource extends PresenterSource<Presenter> {
             callbacks.loadNextTopPage();
         }
     }
+
     public void addPageOnTop(PresenterSource<?> page) {
         addPageOnTopWhenSafe(page);
     }
 
     private void addPageOnTopWhenSafe(final PresenterSource<?> page) {
-        proessWhenSafe(new Runnable(){
+        proessWhenSafe(new Runnable() {
             @Override
             public void run() {
                 addPageOnTopInternal(page);
@@ -100,30 +100,28 @@ public class PaginatedSource extends PresenterSource<Presenter> {
         int startPosition = 0;
         final boolean oldHadMoreTopPage = this.hasMoreTopPage;
         this.hasMoreTopPage = callbacks.hasMoreTopPage();
-        if(this.hasMoreTopPage != oldHadMoreTopPage) {
-            if(oldHadMoreTopPage) {
+        if (this.hasMoreTopPage != oldHadMoreTopPage) {
+            if (oldHadMoreTopPage) {
                 startPosition = 0;
-                notifyItemsRemoved(0,1);
-            }
-            else {
+                notifyItemsRemoved(0, 1);
+            } else {
                 itemsInserted++;
                 startPosition = 1;
             }
-        }
-        else if(oldHadMoreTopPage) {
+        } else if (oldHadMoreTopPage) {
             startPosition++;
         }
 
         item.startPosition = startPosition;
-        sources.add(0,item);
+        sources.add(0, item);
         updateIndexes(item);
         if (isAttached) {
             item.source.onAttached();
         }
 
-        if(hasMoreBottomPage != callbacks.hasMoreBottomPage()) {
+        if (hasMoreBottomPage != callbacks.hasMoreBottomPage()) {
             hasMoreBottomPage = !hasMoreBottomPage;
-            if(hasMoreBottomPage) {
+            if (hasMoreBottomPage) {
                 itemsInserted++;
             }
         }
@@ -150,12 +148,11 @@ public class PaginatedSource extends PresenterSource<Presenter> {
         PaginatedSourceItem item = new PaginatedSourceItem(page);
         int startPosition = getItemCount() - 1;
         int itemCount = page.getItemCount();
-        if(this.hasMoreBottomPage != oldHadMoreBottomPages) {
-            if(oldHadMoreBottomPages) {
+        if (this.hasMoreBottomPage != oldHadMoreBottomPages) {
+            if (oldHadMoreBottomPages) {
                 startPosition--;
-                notifyItemsRemoved(item.startPosition,1);
-            }
-            else {
+                notifyItemsRemoved(item.startPosition, 1);
+            } else {
                 itemCount++;
             }
         }
@@ -185,9 +182,6 @@ public class PaginatedSource extends PresenterSource<Presenter> {
             return this.loadingItemPresenter;
         } else {
             PaginatedSourceItem item = decodeAdapterItem(position);
-            if(item == null) {
-                System.out.println();
-            }
             return item.source.getItem(position - item.startPosition);
         }
     }
@@ -223,8 +217,6 @@ public class PaginatedSource extends PresenterSource<Presenter> {
     }
 
 
-
-
     private void trimPagesSafely(final int position) {
         cancelOldProcess(trimPagesRunnable);
         trimPagesRunnable = new Runnable() {
@@ -237,7 +229,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
     }
 
     private void trimPages(int detachedItemPosition) {
-        if(lastItemAttached < 0) {
+        if (lastItemAttached < 0) {
             return;
         }
         beginUpdates();
@@ -254,7 +246,6 @@ public class PaginatedSource extends PresenterSource<Presenter> {
         if (detachedItemPosition - safeLimit > 0) {
             int safePosition = detachedItemPosition - safeLimit;
             int removedItems = 0;
-            int startPosition = hasMoreTopPage ? 1 : 0;
             List<PaginatedSourceItem> removed = new ArrayList<>();
             while (0 < sources.size()) {
                 PaginatedSourceItem paginatedSourceItem = sources.get(0);
@@ -265,21 +256,25 @@ public class PaginatedSource extends PresenterSource<Presenter> {
                     removedItems += paginatedSourceItem.source.getItemCount();
                 } else {
                     if (success) {
+                        int startPosition = 0;
                         if (hasMoreTopPage != callbacks.hasMoreTopPage()) {
-                            if (hasMoreTopPage) {
+                            hasMoreTopPage = !hasMoreTopPage;
+                            if (!hasMoreTopPage) {
                                 startPosition = 0;
                                 removedItems++;
+                            } else {
+                                startPosition = 1;
+                                removedItems--;
+                                notifyItemsChanged(0, 1);
                             }
-                            hasMoreTopPage = !hasMoreTopPage;
+                        } else if (hasMoreTopPage) {
+                            startPosition = 1;
                         }
                         resetIndexes(startPosition);
                         notifyItemsRemoved(startPosition, removedItems);
                     }
                     break;
                 }
-            }
-            if(sources.size() ==0 ) {
-                System.out.println();
             }
         }
         return success;
@@ -293,7 +288,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
             int startPosition = 0;
             final boolean didHaveMoreBottomItems = this.hasMoreBottomPage;
             List<PaginatedSourceItem> removedItems = new ArrayList<>();
-            for (int i = sources.size() - 1; i > 0; i--) {
+            for (int i = sources.size() - 1; i >= 0; i--) {
                 PaginatedSourceItem paginatedSourceItem = sources.get(i);
                 if (paginatedSourceItem.startPosition > safePosition) {
                     removedItems.add(sources.remove(i));
@@ -309,17 +304,13 @@ public class PaginatedSource extends PresenterSource<Presenter> {
                                 removedItemsCount++;
                             } else {
                                 removedItemsCount--;
+                                notifyItemsChanged(startPosition + removedItemsCount, 1);
                             }
                         }
                         notifyItemsRemoved(startPosition, removedItemsCount);
-                        notifyItemsChanged(startPosition+removedItemsCount,1);
                     }
                     break;
                 }
-            }
-
-            if(sources.size() ==0 ) {
-                System.out.println();
             }
         }
         return success;
@@ -366,7 +357,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
     }
 
     private void resetIndexes(int startIndex) {
-        if(sources.size() > 0 ) {
+        if (sources.size() > 0) {
             PaginatedSourceItem item = sources.get(0);
             item.startPosition = startIndex;
             updateIndexes(item);
@@ -375,12 +366,11 @@ public class PaginatedSource extends PresenterSource<Presenter> {
 
     void updateIndexes(PaginatedSourceItem modifiedItem) {
         boolean continueUpdating = false;
-        for(PaginatedSourceItem item : this.sources) {
-            if(continueUpdating) {
+        for (PaginatedSourceItem item : this.sources) {
+            if (continueUpdating) {
                 item.startPosition = modifiedItem.startPosition + modifiedItem.source.getItemCount();
                 modifiedItem = item;
-            }
-            else if(item == modifiedItem) {
+            } else if (item == modifiedItem) {
                 continueUpdating = true;
             }
         }

@@ -93,9 +93,9 @@ public class MainActivity extends AppCompatActivity {
                         loadingNextBottomAdpater = false;
                         String s = String.valueOf(System.currentTimeMillis());
                         PresenterSource presenterSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
-                        int limit = new Random().nextInt(20);
-                        Log.d("PAGINATED", "Adding Bottom " +limit);
-                        presenterSource.setMaxLimit(limit == 0 ? 1 : limit);
+//                        int limit = new Random().nextInt(20);
+//                        Log.d("PAGINATED", "Adding Bottom " +limit);
+//                        presenterSource.setMaxLimit(limit == 0 ? 1 : limit);
                         paginatedSource.addPageInBottom(presenterSource);
                     }
                 });
@@ -115,9 +115,9 @@ public class MainActivity extends AppCompatActivity {
                         loadingNextTopAdapter = false;
                         String s = String.valueOf(System.currentTimeMillis());
                         PresenterSource presenterSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
-                        int limit = new Random().nextInt(20);
-                        Log.d("PAGINATED", "Adding Top " +limit);
-                        presenterSource.setMaxLimit(limit == 0 ? 1 : limit);
+//                        int limit = new Random().nextInt(20);
+//                        Log.d("PAGINATED", "Adding Top " +limit);
+//                        presenterSource.setMaxLimit(limit == 0 ? 1 : limit);
                         paginatedSource.addPageOnTop(presenterSource);
                     }
                 });

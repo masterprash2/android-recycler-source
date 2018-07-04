@@ -66,11 +66,11 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
             }
 
             private void processWhenQueueIdle() {
-                mHandler.postDelayed(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         if (isComputingLayout()) {
-                            mHandler.postDelayed(this, 50);
+                            mHandler.post(this);
                         } else {
                             while (deque.peekFirst() != null) {
                                 Runnable runnable = deque.pollFirst();
@@ -79,7 +79,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
                             processingInProgress = false;
                         }
                     }
-                }, 50);
+                });
             }
 
             @Override
@@ -132,7 +132,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
     public void onViewAttachedToWindow(@NonNull RvViewHolder holder) {
         super.onViewAttachedToWindow(holder);
         holder.onAttach();
-        Log.d("PAGINATEDP","LP: "+ holder.getLayoutPosition() + " AP:"+holder.getAdapterPosition() + " P:"+holder.getPosition());
+//        Log.d("PAGINATEDP","LP: "+ holder.getLayoutPosition() + " AP:"+holder.getAdapterPosition() + " P:"+holder.getPosition());
         presenterSource.onItemAttached(holder.getAdapterPosition());
     }
 
@@ -164,7 +164,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        Log.d("PAGINATEDIP"," "+position);
+//        Log.d("PAGINATEDIP"," "+position);
         return presenterSource.getItemType(position);
     }
 
@@ -191,14 +191,11 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
                     notifyItemRangeChanged(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_REMOVED:
-                    if (getItemCount() < 0) {
-                        Log.d("PAGINATEDR", "Removed " + sourceUpdateEvent.getItemCount() + " ItemCount:" + getItemCount());
-                    }
-                    Log.d("PAGINATEDR", "Removed " + sourceUpdateEvent.getItemCount() + " ItemCount:" + getItemCount());
+//                    Log.d("PAGINATEDR", "Position: " + sourceUpdateEvent.getPosition()+ "Removed " + sourceUpdateEvent.getItemCount() + " ItemCount:" + getItemCount());
                     notifyItemRangeRemoved(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_ADDED:
-                    Log.d("PAGINATEDR", "Added " + sourceUpdateEvent.getItemCount() + " ItemCount:" + getItemCount());
+//                    Log.d("PAGINATEDR", "Position: " + sourceUpdateEvent.getPosition()+ " Added " + sourceUpdateEvent.getItemCount() + " ItemCount:" + getItemCount());
                     notifyItemRangeInserted(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_MOVED:
