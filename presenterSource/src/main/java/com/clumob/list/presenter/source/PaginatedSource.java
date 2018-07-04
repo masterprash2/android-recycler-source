@@ -1,5 +1,6 @@
 package com.clumob.list.presenter.source;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,6 +21,10 @@ public class PaginatedSource extends PresenterSource<Presenter> {
 
     final private int threshHold;
     final private int safeLimit = 20;
+
+    private int lastItemAttached;
+
+    private Runnable trimPagesRunnable;
 
     public PaginatedSource(Presenter loadingItemPresenter, int preloadTriggerSize, PagenatedCallbacks callbacks) {
         this.loadingItemPresenter = loadingItemPresenter;
@@ -49,6 +54,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
 
     @Override
     public void onItemAttached(int position) {
+        lastItemAttached = position;
         trimPagesSafely(position);
         bloatPages(position);
         if (position == getItemCount() - 1 && hasMoreBottomPage) {
@@ -59,7 +65,11 @@ public class PaginatedSource extends PresenterSource<Presenter> {
             }
         }
         PaginatedSourceItem adapterAsItem = decodeAdapterItem(position);
-        adapterAsItem.source.onItemAttached(position - adapterAsItem.startPosition);
+        if(adapterAsItem != null) {
+            System.out.println();
+            adapterAsItem.source.onItemAttached(position - adapterAsItem.startPosition);
+        }
+
     }
 
     private void bloatPages(int attachedIndex) {
@@ -139,16 +149,20 @@ public class PaginatedSource extends PresenterSource<Presenter> {
         this.hasMoreBottomPage = callbacks.hasMoreBottomPage();
         PaginatedSourceItem item = new PaginatedSourceItem(page);
         int startPosition = getItemCount() - 1;
+        int itemCount = page.getItemCount();
         if(this.hasMoreBottomPage != oldHadMoreBottomPages) {
             if(oldHadMoreBottomPages) {
                 startPosition--;
                 notifyItemsRemoved(item.startPosition,1);
             }
+            else {
+                itemCount++;
+            }
         }
         item.startPosition = startPosition;
         item.source.setViewInteractor(getViewInteractor());
         sources.add(item);
-        notifyItemsInserted(item.startPosition, item.source.getItemCount());
+        notifyItemsInserted(item.startPosition, itemCount);
     }
 
 
@@ -171,6 +185,9 @@ public class PaginatedSource extends PresenterSource<Presenter> {
             return this.loadingItemPresenter;
         } else {
             PaginatedSourceItem item = decodeAdapterItem(position);
+            if(item == null) {
+                System.out.println();
+            }
             return item.source.getItem(position - item.startPosition);
         }
     }
@@ -206,17 +223,26 @@ public class PaginatedSource extends PresenterSource<Presenter> {
     }
 
 
+
+
     private void trimPagesSafely(final int position) {
-        proessWhenSafe(new Runnable() {
+        cancelOldProcess(trimPagesRunnable);
+        trimPagesRunnable = new Runnable() {
             @Override
             public void run() {
                 trimPages(position);
             }
-        });
+        };
+        proessWhenSafe(trimPagesRunnable);
     }
 
     private void trimPages(int detachedItemPosition) {
+        if(lastItemAttached < 0) {
+            return;
+        }
         beginUpdates();
+        detachedItemPosition = lastItemAttached;
+        lastItemAttached = -1;
         final boolean didTripBottomPages = trimBottomPage(detachedItemPosition);
         final boolean didTrimTopPages = trimTopPage(detachedItemPosition);
         if (didTrimTopPages || didTripBottomPages)
@@ -229,10 +255,11 @@ public class PaginatedSource extends PresenterSource<Presenter> {
             int safePosition = detachedItemPosition - safeLimit;
             int removedItems = 0;
             int startPosition = hasMoreTopPage ? 1 : 0;
-            for (int i = 0; i < sources.size(); ) {
-                PaginatedSourceItem paginatedSourceItem = sources.get(i);
+            List<PaginatedSourceItem> removed = new ArrayList<>();
+            while (0 < sources.size()) {
+                PaginatedSourceItem paginatedSourceItem = sources.get(0);
                 if (paginatedSourceItem.startPosition + paginatedSourceItem.source.getItemCount() < safePosition) {
-                    sources.remove(i);
+                    removed.add(sources.remove(0));
                     callbacks.unloadingTopPage(paginatedSourceItem.source);
                     success = true;
                     removedItems += paginatedSourceItem.source.getItemCount();
@@ -246,10 +273,13 @@ public class PaginatedSource extends PresenterSource<Presenter> {
                             hasMoreTopPage = !hasMoreTopPage;
                         }
                         resetIndexes(startPosition);
-                        notifyItemsRemoved(startPosition, removedItems + 1);
+                        notifyItemsRemoved(startPosition, removedItems);
                     }
                     break;
                 }
+            }
+            if(sources.size() ==0 ) {
+                System.out.println();
             }
         }
         return success;
@@ -262,10 +292,11 @@ public class PaginatedSource extends PresenterSource<Presenter> {
             int removedItemsCount = 0;
             int startPosition = 0;
             final boolean didHaveMoreBottomItems = this.hasMoreBottomPage;
+            List<PaginatedSourceItem> removedItems = new ArrayList<>();
             for (int i = sources.size() - 1; i > 0; i--) {
                 PaginatedSourceItem paginatedSourceItem = sources.get(i);
                 if (paginatedSourceItem.startPosition > safePosition) {
-                    sources.remove(i);
+                    removedItems.add(sources.remove(i));
                     removedItemsCount += paginatedSourceItem.source.getItemCount();
                     callbacks.unloadingBottomPage(paginatedSourceItem.source);
                     success = true;
@@ -277,14 +308,18 @@ public class PaginatedSource extends PresenterSource<Presenter> {
                             if (didHaveMoreBottomItems) {
                                 removedItemsCount++;
                             } else {
-                                notifyItemsInserted(startPosition + removedItemsCount, 1);
+                                removedItemsCount--;
                             }
                         }
                         notifyItemsRemoved(startPosition, removedItemsCount);
-
+                        notifyItemsChanged(startPosition+removedItemsCount,1);
                     }
                     break;
                 }
+            }
+
+            if(sources.size() ==0 ) {
+                System.out.println();
             }
         }
         return success;
@@ -396,6 +431,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
                 case HAS_STABLE_IDS:
                     break;
             }
+            updateIndexes(this);
         }
 
 

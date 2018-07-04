@@ -64,18 +64,18 @@ public class MainActivity extends AppCompatActivity {
             private boolean loadingNextBottomAdpater;
             private boolean loadingNextTopAdapter;
 
-            private int topPageIndex = 3;
-            private int bottomPageIndex = 3;
+            private int topPageIndex = 5;
+            private int bottomPageIndex = 5;
 
             @Override
             public boolean hasMoreBottomPage() {
-                Log.d("PAGINATED","Has More Bottom Page - " + (bottomPageIndex > 0));
+                Log.d("PAGINATED","Has More Bottom Page - " + bottomPageIndex);
                 return bottomPageIndex > 0;
             }
 
             @Override
             public boolean hasMoreTopPage() {
-                Log.d("PAGINATED","Has More TOP Page - " + (topPageIndex > 0));
+                Log.d("PAGINATED","Has More TOP Page - " + topPageIndex);
                 return topPageIndex > 0;
             }
 
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 loadingNextBottomAdpater = true;
                 final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
+                handler.post(new Runnable() {
                     @Override
                     public void run() {
                         bottomPageIndex--;
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                         presenterSource.setMaxLimit(limit == 0 ? 1 : limit);
                         paginatedSource.addPageInBottom(presenterSource);
                     }
-                },3000);
+                });
             }
 
             @Override
@@ -108,12 +108,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 loadingNextTopAdapter = true;
                 final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
+                handler.post(new Runnable() {
                     @Override
                     public void run() {
                         topPageIndex--;
                         loadingNextTopAdapter = false;
-                        Log.d("PAGINATED", "Adding Top");
                         String s = String.valueOf(System.currentTimeMillis());
                         PresenterSource presenterSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
                         int limit = new Random().nextInt(20);
@@ -121,19 +120,19 @@ public class MainActivity extends AppCompatActivity {
                         presenterSource.setMaxLimit(limit == 0 ? 1 : limit);
                         paginatedSource.addPageOnTop(presenterSource);
                     }
-                },3000);
+                });
             }
 
             @Override
             public void unloadingTopPage(PresenterSource<?> source) {
                 topPageIndex++;
-                Log.d("PAGINATED", "Unloading Top Page");
+                Log.d("PAGINATED", "Unloading Top Page " + topPageIndex);
             }
 
             @Override
             public void unloadingBottomPage(PresenterSource<?> source) {
                 bottomPageIndex++;
-                Log.d("PAGINATED", "Unloading Bottom Page");
+                Log.d("PAGINATED", "Unloading Bottom Page " +bottomPageIndex);
             }
         };
     }

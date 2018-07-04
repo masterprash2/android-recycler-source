@@ -58,40 +58,33 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
             @Override
             public void processWhenSafe(Runnable runnable) {
-                if(isComputingLayout()) {
-                    deque.add(runnable);
-                    if(!processingInProgress) {
-                        processingInProgress = true;
-                        processWhenQueueIdle();
-                    }
-                }
-                else {
-                    runnable.run();
+                deque.add(runnable);
+                if (!processingInProgress) {
+                    processingInProgress = true;
+                    processWhenQueueIdle();
                 }
             }
 
             private void processWhenQueueIdle() {
-                mHandler.post(new Runnable() {
+                mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if(isComputingLayout()) {
-                            mHandler.post(this);
-                        }
-                        else {
-                            while(deque.peekFirst() != null)
-                            {
+                        if (isComputingLayout()) {
+                            mHandler.postDelayed(this, 50);
+                        } else {
+                            while (deque.peekFirst() != null) {
                                 Runnable runnable = deque.pollFirst();
                                 runnable.run();
                             }
                             processingInProgress = false;
                         }
                     }
-                });
+                }, 50);
             }
 
             @Override
             public void cancelOldProcess(Runnable runnable) {
-
+                mHandler.removeCallbacks(runnable);
             }
         };
     }
@@ -139,6 +132,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
     public void onViewAttachedToWindow(@NonNull RvViewHolder holder) {
         super.onViewAttachedToWindow(holder);
         holder.onAttach();
+        Log.d("PAGINATEDP","LP: "+ holder.getLayoutPosition() + " AP:"+holder.getAdapterPosition() + " P:"+holder.getPosition());
         presenterSource.onItemAttached(holder.getAdapterPosition());
     }
 
@@ -170,6 +164,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
+        Log.d("PAGINATEDIP"," "+position);
         return presenterSource.getItemType(position);
     }
 
@@ -196,9 +191,14 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
                     notifyItemRangeChanged(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_REMOVED:
+                    if (getItemCount() < 0) {
+                        Log.d("PAGINATEDR", "Removed " + sourceUpdateEvent.getItemCount() + " ItemCount:" + getItemCount());
+                    }
+                    Log.d("PAGINATEDR", "Removed " + sourceUpdateEvent.getItemCount() + " ItemCount:" + getItemCount());
                     notifyItemRangeRemoved(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_ADDED:
+                    Log.d("PAGINATEDR", "Added " + sourceUpdateEvent.getItemCount() + " ItemCount:" + getItemCount());
                     notifyItemRangeInserted(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_MOVED:

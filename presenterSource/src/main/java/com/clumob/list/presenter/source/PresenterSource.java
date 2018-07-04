@@ -90,6 +90,10 @@ public abstract class PresenterSource<P extends Presenter> {
 
     protected final void notifyItemsRemoved(int startPosition, int itemsRemoved) {
         final int oldItemCount = this.itemCount;
+        final int newItemCount = computeItemCountOnItemsRemoved(oldItemCount, itemsRemoved);
+        if(newItemCount < 0) {
+            System.out.println();
+        }
         this.itemCount = computeItemCountOnItemsRemoved(oldItemCount, itemsRemoved);
         final int diff = oldItemCount - this.itemCount;
         publishUpdateEvent(startPosition, SourceUpdateEvent.Type.ITEMS_REMOVED, diff);
