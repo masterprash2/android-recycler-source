@@ -23,6 +23,13 @@ public class MultiplexSource extends PresenterSource<Presenter> {
     }
 
     @Override
+    public void setViewInteractor(ViewInteractor viewInteractor) {
+        for(AdapterAsItem adapterAsItem : adapters) {
+            adapterAsItem.adapter.setViewInteractor(viewInteractor);
+        }
+    }
+
+    @Override
     public void onItemAttached(int position) {
         AdapterAsItem adapterAsItem = decodeAdapterItem(position);
         adapterAsItem.adapter.onItemAttached(position - adapterAsItem.startPosition);
@@ -114,6 +121,19 @@ public class MultiplexSource extends PresenterSource<Presenter> {
         return remove.adapter;
     }
 
+    void updateIndexes(AdapterAsItem modifiedItem) {
+        boolean continueUpdating = false;
+        for(AdapterAsItem item : this.adapters) {
+            if(continueUpdating) {
+                item.startPosition = modifiedItem.startPosition + modifiedItem.adapter.getItemCount();
+                modifiedItem = item;
+            }
+            else if(item == modifiedItem) {
+                continueUpdating = true;
+            }
+        }
+    }
+
     class AdapterAsItem {
 
         int startPosition = 0;
@@ -160,6 +180,7 @@ public class MultiplexSource extends PresenterSource<Presenter> {
                     break;
 
             }
+            updateIndexes(this);
         }
 
 

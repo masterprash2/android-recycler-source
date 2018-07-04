@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.clumob.list.presenter.source.ArraySource;
 import com.clumob.list.presenter.source.MultiplexSource;
+import com.clumob.list.presenter.source.PaginatedSource;
 import com.clumob.list.presenter.source.Presenter;
 import com.clumob.list.presenter.source.PresenterSource;
 import com.clumob.recyclerview.adapter.RvAdapter;
@@ -45,10 +46,97 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private RecyclerView.Adapter createRecyclerViewAdapter() {
-        return new RvAdapter(createViewHolderProvider(), createMultiplexAdapterSample());
+        return new RvAdapter(createViewHolderProvider(), createPaginatedSource());
     }
 
     private boolean removeAdapter;
+
+    private PaginatedSource paginatedSource;
+
+    private PaginatedSource createPaginatedSource() {
+        paginatedSource = new PaginatedSource(new ItemPresenter("loading"), 5, createPaginatedCallBacks());
+        return paginatedSource;
+    }
+
+    private PaginatedSource.PagenatedCallbacks createPaginatedCallBacks() {
+        return new PaginatedSource.PagenatedCallbacks() {
+
+            private boolean loadingNextBottomAdpater;
+            private boolean loadingNextTopAdapter;
+
+            private int topPageIndex = 3;
+            private int bottomPageIndex = 3;
+
+            @Override
+            public boolean hasMoreBottomPage() {
+                Log.d("PAGINATED","Has More Bottom Page - " + (bottomPageIndex > 0));
+                return bottomPageIndex > 0;
+            }
+
+            @Override
+            public boolean hasMoreTopPage() {
+                Log.d("PAGINATED","Has More TOP Page - " + (topPageIndex > 0));
+                return topPageIndex > 0;
+            }
+
+            @Override
+            public void loadNextBottomPage() {
+                if(loadingNextBottomAdpater) {
+                    return;
+                }
+                loadingNextBottomAdpater = true;
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        bottomPageIndex--;
+                        loadingNextBottomAdpater = false;
+                        String s = String.valueOf(System.currentTimeMillis());
+                        PresenterSource presenterSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
+                        int limit = new Random().nextInt(20);
+                        Log.d("PAGINATED", "Adding Bottom " +limit);
+                        presenterSource.setMaxLimit(limit == 0 ? 1 : limit);
+                        paginatedSource.addPageInBottom(presenterSource);
+                    }
+                },3000);
+            }
+
+            @Override
+            public void loadNextTopPage() {
+                if(loadingNextTopAdapter) {
+                    return;
+                }
+                loadingNextTopAdapter = true;
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        topPageIndex--;
+                        loadingNextTopAdapter = false;
+                        Log.d("PAGINATED", "Adding Top");
+                        String s = String.valueOf(System.currentTimeMillis());
+                        PresenterSource presenterSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
+                        int limit = new Random().nextInt(20);
+                        Log.d("PAGINATED", "Adding Top " +limit);
+                        presenterSource.setMaxLimit(limit == 0 ? 1 : limit);
+                        paginatedSource.addPageOnTop(presenterSource);
+                    }
+                },3000);
+            }
+
+            @Override
+            public void unloadingTopPage(PresenterSource<?> source) {
+                topPageIndex++;
+                Log.d("PAGINATED", "Unloading Top Page");
+            }
+
+            @Override
+            public void unloadingBottomPage(PresenterSource<?> source) {
+                bottomPageIndex++;
+                Log.d("PAGINATED", "Unloading Bottom Page");
+            }
+        };
+    }
 
     private MultiplexSource createMultiplexAdapterSample() {
         final MultiplexSource multiplexSource = new MultiplexSource();

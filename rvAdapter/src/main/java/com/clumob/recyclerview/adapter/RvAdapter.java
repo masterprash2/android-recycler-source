@@ -1,5 +1,6 @@
 package com.clumob.recyclerview.adapter;
 
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -9,6 +10,9 @@ import android.view.ViewGroup;
 import com.clumob.list.presenter.source.Presenter;
 import com.clumob.list.presenter.source.PresenterSource;
 import com.clumob.list.presenter.source.SourceUpdateEvent;
+
+import java.util.Deque;
+import java.util.LinkedList;
 
 import io.reactivex.observers.DisposableObserver;
 
@@ -23,6 +27,9 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
     private OnRecyclerItemClickListener itemClickListener;
     private RecyclerView recyclerView;
     private AdapterUpdateObserver adapterUpdateEventObserver;
+
+    private boolean isComputingLayout;
+    private Handler mHandler = new Handler();
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -40,6 +47,53 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
         this.presenterSource = presenterSource;
         this.viewHolderProvider = viewHolderProvider;
         setHasStableIds(this.presenterSource.hasStableIds());
+        this.presenterSource.setViewInteractor(createViewInteractor());
+    }
+
+    private PresenterSource.ViewInteractor createViewInteractor() {
+        return new PresenterSource.ViewInteractor() {
+
+            Deque<Runnable> deque = new LinkedList<>();
+            private boolean processingInProgress;
+
+            @Override
+            public void processWhenSafe(Runnable runnable) {
+                if(isComputingLayout()) {
+                    deque.add(runnable);
+                    if(!processingInProgress) {
+                        processingInProgress = true;
+                        processWhenQueueIdle();
+                    }
+                }
+                else {
+                    runnable.run();
+                }
+            }
+
+            private void processWhenQueueIdle() {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(isComputingLayout()) {
+                            mHandler.post(this);
+                        }
+                        else {
+                            while(deque.peekFirst() != null)
+                            {
+                                Runnable runnable = deque.pollFirst();
+                                runnable.run();
+                            }
+                            processingInProgress = false;
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void cancelOldProcess(Runnable runnable) {
+
+            }
+        };
     }
 
     @Override
@@ -64,7 +118,10 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
             this.adapterUpdateEventObserver = null;
         }
         super.onDetachedFromRecyclerView(recyclerView);
+    }
 
+    boolean isComputingLayout() {
+        return recyclerView == null ? false : recyclerView.isComputingLayout();
     }
 
     public void setItemClickListener(OnRecyclerItemClickListener itemClickListener) {
@@ -82,6 +139,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
     public void onViewAttachedToWindow(@NonNull RvViewHolder holder) {
         super.onViewAttachedToWindow(holder);
         holder.onAttach();
+        presenterSource.onItemAttached(holder.getAdapterPosition());
     }
 
     @Override
@@ -99,6 +157,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
     @Override
     public void onViewDetachedFromWindow(@NonNull RvViewHolder holder) {
+        presenterSource.onItemDetached(holder.getAdapterPosition());
         holder.onDetach();
         super.onViewDetachedFromWindow(holder);
     }
@@ -123,7 +182,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
         public void onRecyclerItemClick(RecyclerView recyclerView, int position);
     }
 
-    private class AdapterUpdateObserver extends DisposableObserver<SourceUpdateEvent> {
+    class AdapterUpdateObserver extends DisposableObserver<SourceUpdateEvent> {
 
         @Override
         public void onNext(SourceUpdateEvent sourceUpdateEvent) {

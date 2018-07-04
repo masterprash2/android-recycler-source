@@ -18,6 +18,11 @@ public class ArraySource<P extends Presenter> extends PresenterSource<P> {
         }
     }
 
+    @Override
+    public void onItemAttached(int position) {
+
+    }
+
     public void switchItems(List<P> newItems) {
         int diff = newItems.size() - this.presenters.size();
         beginUpdates();
@@ -55,6 +60,11 @@ public class ArraySource<P extends Presenter> extends PresenterSource<P> {
     @Override
     public P getItem(int position) {
         return presenters.get(position);
+    }
+
+    @Override
+    public void onItemDetached(int position) {
+
     }
 
     @Override

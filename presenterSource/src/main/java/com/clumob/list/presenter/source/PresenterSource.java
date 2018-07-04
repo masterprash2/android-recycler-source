@@ -13,6 +13,15 @@ public abstract class PresenterSource<P extends Presenter> {
     private int itemCount = 0;
     private int maxCount = -1;
     private boolean hasMaxLimit;
+    private ViewInteractor viewInteractor;
+
+    public void setViewInteractor(ViewInteractor viewInteractor) {
+        this.viewInteractor = viewInteractor;
+    }
+
+    protected ViewInteractor getViewInteractor() {
+        return viewInteractor;
+    }
 
     public abstract void onAttached();
 
@@ -121,6 +130,26 @@ public abstract class PresenterSource<P extends Presenter> {
     public void beginUpdates() {
         publishUpdateEvent(0, SourceUpdateEvent.Type.UPDATE_BEGINS,0);
     }
+
+    protected void proessWhenSafe(Runnable runnable) {
+        if(viewInteractor == null) {
+            runnable.run();
+        }
+        else
+            viewInteractor.processWhenSafe(runnable);
+    }
+
+    protected void cancelOldProcess(Runnable runnable) {
+        if(viewInteractor != null) {
+            viewInteractor.cancelOldProcess(runnable);
+        }
+    }
+
+    public interface ViewInteractor {
+        public void processWhenSafe(Runnable runnable);
+        public void cancelOldProcess(Runnable runnable);
+    }
+
 
 
 //    PresenterSource<Item,P> getRootAdapter(int position);
