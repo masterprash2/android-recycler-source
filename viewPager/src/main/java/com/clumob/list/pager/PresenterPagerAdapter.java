@@ -4,7 +4,7 @@ import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.clumob.list.presenter.source.PresenterSource;
+import com.clumob.listitem.controller.source.ItemControllerSource;
 
 /**
  * Created by prashant.rathore on 02/07/18.
@@ -12,15 +12,15 @@ import com.clumob.list.presenter.source.PresenterSource;
 
 public class PresenterPagerAdapter extends PagerAdapter {
 
-    private PresenterSource<?> presenterSource;
+    private ItemControllerSource<?> itemControllerSource;
 
-    public PresenterPagerAdapter(PresenterSource<?> presenterSource) {
-        this.presenterSource = presenterSource;
+    public PresenterPagerAdapter(ItemControllerSource<?> itemControllerSource) {
+        this.itemControllerSource = itemControllerSource;
     }
 
     @Override
     public int getCount() {
-        return presenterSource.getItemCount();
+        return itemControllerSource.getItemCount();
     }
 
     @Override

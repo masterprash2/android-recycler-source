@@ -12,11 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.clumob.list.presenter.source.ArraySource;
-import com.clumob.list.presenter.source.MultiplexSource;
-import com.clumob.list.presenter.source.PaginatedSource;
-import com.clumob.list.presenter.source.Presenter;
-import com.clumob.list.presenter.source.PresenterSource;
+import com.clumob.listitem.controller.source.ArraySource;
+import com.clumob.listitem.controller.source.ItemController;
+import com.clumob.listitem.controller.source.ItemControllerSource;
+import com.clumob.listitem.controller.source.MultiplexSource;
+import com.clumob.listitem.controller.source.PaginatedSource;
 import com.clumob.recyclerview.adapter.RvAdapter;
 import com.clumob.recyclerview.adapter.RvViewHolder;
 import com.clumob.recyclerview.adapter.ViewHolderProvider;
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private PaginatedSource paginatedSource;
 
     private PaginatedSource createPaginatedSource() {
-        paginatedSource = new PaginatedSource(new ItemPresenter("loading"), 5, createPaginatedCallBacks());
+        paginatedSource = new PaginatedSource(new ItemItemController("loading"), 5, createPaginatedCallBacks());
         return paginatedSource;
     }
 
@@ -92,11 +92,11 @@ public class MainActivity extends AppCompatActivity {
                         bottomPageIndex--;
                         loadingNextBottomAdpater = false;
                         String s = String.valueOf(System.currentTimeMillis());
-                        PresenterSource presenterSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
+                        ItemControllerSource itemControllerSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
 //                        int limit = new Random().nextInt(20);
 //                        Log.d("PAGINATED", "Adding Bottom " +limit);
-//                        presenterSource.setMaxLimit(limit == 0 ? 1 : limit);
-                        paginatedSource.addPageInBottom(presenterSource);
+//                        itemControllerSource.setMaxLimit(limit == 0 ? 1 : limit);
+                        paginatedSource.addPageInBottom(itemControllerSource);
                     }
                 });
             }
@@ -114,23 +114,23 @@ public class MainActivity extends AppCompatActivity {
                         topPageIndex--;
                         loadingNextTopAdapter = false;
                         String s = String.valueOf(System.currentTimeMillis());
-                        PresenterSource presenterSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
+                        ItemControllerSource itemControllerSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
 //                        int limit = new Random().nextInt(20);
 //                        Log.d("PAGINATED", "Adding Top " +limit);
-//                        presenterSource.setMaxLimit(limit == 0 ? 1 : limit);
-                        paginatedSource.addPageOnTop(presenterSource);
+//                        itemControllerSource.setMaxLimit(limit == 0 ? 1 : limit);
+                        paginatedSource.addPageOnTop(itemControllerSource);
                     }
                 });
             }
 
             @Override
-            public void unloadingTopPage(PresenterSource<?> source) {
+            public void unloadingTopPage(ItemControllerSource<?> source) {
                 topPageIndex++;
                 Log.d("PAGINATED", "Unloading Top Page " + topPageIndex);
             }
 
             @Override
-            public void unloadingBottomPage(PresenterSource<?> source) {
+            public void unloadingBottomPage(ItemControllerSource<?> source) {
                 bottomPageIndex++;
                 Log.d("PAGINATED", "Unloading Bottom Page " +bottomPageIndex);
             }
@@ -150,11 +150,11 @@ public class MainActivity extends AppCompatActivity {
                     multiplexSource.removeAdapter(1);
                 } else {
                     String s = String.valueOf(System.currentTimeMillis());
-                    PresenterSource presenterSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
+                    ItemControllerSource itemControllerSource = createPresenterAdapter(String.valueOf(s.charAt(s.length() - 1)));
                     int limit = new Random().nextInt(20);
                     Log.d("LIMIT", s + "-" + limit);
-                    presenterSource.setMaxLimit(limit);
-                    multiplexSource.addAdapter(presenterSource);
+                    itemControllerSource.setMaxLimit(limit);
+                    multiplexSource.addAdapter(itemControllerSource);
                 }
 
                 removeAdapter = !removeAdapter;
@@ -164,9 +164,9 @@ public class MainActivity extends AppCompatActivity {
         return multiplexSource;
     }
 
-    private PresenterSource createPresenterAdapter(String d) {
-        ArraySource<ItemPresenter> arraySource = new ArraySource();
-        List<ItemPresenter> items = new ArrayList<>();
+    private ItemControllerSource createPresenterAdapter(String d) {
+        ArraySource<ItemItemController> arraySource = new ArraySource();
+        List<ItemItemController> items = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             items.add(createPresenter(d + " = Object " + i));
         }
@@ -174,15 +174,15 @@ public class MainActivity extends AppCompatActivity {
         return arraySource;
     }
 
-    private ItemPresenter createPresenter(String data) {
-        return new ItemPresenter(data);
+    private ItemItemController createPresenter(String data) {
+        return new ItemItemController(data);
     }
 
-    static class ItemPresenter implements Presenter {
+    static class ItemItemController implements ItemController {
 
         final String data;
 
-        public ItemPresenter(String data) {
+        public ItemItemController(String data) {
             this.data = data;
         }
 
@@ -225,14 +225,14 @@ public class MainActivity extends AppCompatActivity {
     private ViewHolderProvider createViewHolderProvider() {
         return new ViewHolderProvider() {
             @Override
-            public RvViewHolder<ItemPresenter> provideViewHolder(ViewGroup parent, int type) {
+            public RvViewHolder<ItemItemController> provideViewHolder(ViewGroup parent, int type) {
                 View inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
-                return new RvViewHolder<ItemPresenter>(inflate) {
+                return new RvViewHolder<ItemItemController>(inflate) {
 
                     @Override
                     protected void bindView() {
                         TextView tv = getItemView().findViewById(R.id.text);
-                        tv.setText(getPresenter().data);
+                        tv.setText(getController().data);
                     }
 
                     @Override

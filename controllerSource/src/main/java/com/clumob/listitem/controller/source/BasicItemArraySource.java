@@ -7,10 +7,10 @@
 // * Created by prashant.rathore on 24/06/18.
 // */
 //
-//public class BasicItemArraySource<P extends Presenter> extends PresenterSource<P> {
+//public class BasicItemArraySource<P extends ItemController> extends PresenterSource<P> {
 //
 //    private List<Item> contentItems = new ArrayList<>();
-//    private InteractorItem<Item, Presenter<Item>> reusableItem = createReusableInteractor();
+//    private InteractorItem<Item, ItemController<Item>> reusableItem = createReusableInteractor();
 //
 //
 //    @Override
@@ -48,7 +48,7 @@
 //    }
 //
 //    @Override
-//    public InteractorItem<Item, Presenter<Item>> getItem(int position) {
+//    public InteractorItem<Item, ItemController<Item>> getItem(int position) {
 //        return reusableItem.mutate(contentItems.get(position));
 //    }
 //
@@ -57,8 +57,8 @@
 //    }
 //
 //
-//    private InteractorItem<Item, Presenter<Item>> createReusableInteractor() {
-//        return new InteractorItem<Item, Presenter<Item>>(new Presenter<Item>() {
+//    private InteractorItem<Item, ItemController<Item>> createReusableInteractor() {
+//        return new InteractorItem<Item, ItemController<Item>>(new ItemController<Item>() {
 //            @Override
 //            public void onCreate(Item item) {
 //

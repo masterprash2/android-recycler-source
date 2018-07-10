@@ -1,4 +1,4 @@
-package com.clumob.list.presenter.source;
+package com.clumob.listitem.controller.source;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
@@ -7,7 +7,7 @@ import io.reactivex.subjects.PublishSubject;
  * Created by prashant.rathore on 24/06/18.
  */
 
-public abstract class PresenterSource<P extends Presenter> {
+public abstract class ItemControllerSource<Controller extends ItemController> {
 
     private PublishSubject<SourceUpdateEvent> updateEventPublisher = PublishSubject.create();
     private int itemCount = 0;
@@ -66,9 +66,9 @@ public abstract class PresenterSource<P extends Presenter> {
         }
     }
 
-    public abstract int getItemPosition(P item);
+    public abstract int getItemPosition(Controller item);
 
-    public abstract P getItem(int position);
+    public abstract Controller getItem(int position);
 
     public abstract void onItemDetached(int position);
 
@@ -152,6 +152,6 @@ public abstract class PresenterSource<P extends Presenter> {
 
 
 
-//    PresenterSource<Item,P> getRootAdapter(int position);
+//    ItemControllerSource<Item,Controller> getRootAdapter(int position);
 
 }

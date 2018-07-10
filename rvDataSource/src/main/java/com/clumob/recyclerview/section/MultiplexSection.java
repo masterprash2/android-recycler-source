@@ -1,6 +1,6 @@
 package com.clumob.recyclerview.section;
 
-import com.clumob.list.presenter.source.Presenter;
+import com.clumob.listitem.controller.source.ItemController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
  * Created by prashant.rathore on 19/06/18.
  */
 
-public class MultiplexSection<T extends Presenter> extends Section<T> {
+public class MultiplexSection<T extends ItemController> extends Section<T> {
 
     private List<Section<T>> sections = new ArrayList<>();
 

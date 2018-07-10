@@ -1,12 +1,12 @@
 package com.clumob.recyclerview.section;
 
-import com.clumob.list.presenter.source.Presenter;
+import com.clumob.listitem.controller.source.ItemController;
 
 /**
  * Created by prashant.rathore on 19/06/18.
  */
 
-public class ItemSection<T extends Presenter> extends Section<T> {
+public class ItemSection<T extends ItemController> extends Section<T> {
 
     private T item;
 

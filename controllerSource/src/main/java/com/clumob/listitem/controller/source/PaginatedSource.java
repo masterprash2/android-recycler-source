@@ -1,4 +1,4 @@
-package com.clumob.list.presenter.source;
+package com.clumob.listitem.controller.source;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -10,9 +10,9 @@ import io.reactivex.observers.DisposableObserver;
  * Created by prashant.rathore on 03/07/18.
  */
 
-public class PaginatedSource extends PresenterSource<Presenter> {
+public class PaginatedSource extends ItemControllerSource<ItemController> {
 
-    private final Presenter loadingItemPresenter;
+    private final ItemController loadingItemItemController;
     private List<PaginatedSourceItem> sources = new LinkedList<>();
     private final PagenatedCallbacks callbacks;
     private boolean hasMoreBottomPage = false;
@@ -26,8 +26,8 @@ public class PaginatedSource extends PresenterSource<Presenter> {
 
     private Runnable trimPagesRunnable;
 
-    public PaginatedSource(Presenter loadingItemPresenter, int preloadTriggerSize, PagenatedCallbacks callbacks) {
-        this.loadingItemPresenter = loadingItemPresenter;
+    public PaginatedSource(ItemController loadingItemItemController, int preloadTriggerSize, PagenatedCallbacks callbacks) {
+        this.loadingItemItemController = loadingItemItemController;
         this.threshHold = preloadTriggerSize;
         this.callbacks = callbacks;
         int itemCount = computeItemCount();
@@ -45,7 +45,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
 
     @Override
     public void onAttached() {
-        loadingItemPresenter.onCreate();
+        loadingItemItemController.onCreate();
         for (PaginatedSourceItem item : sources) {
             item.source.onAttached();
         }
@@ -80,11 +80,11 @@ public class PaginatedSource extends PresenterSource<Presenter> {
         }
     }
 
-    public void addPageOnTop(PresenterSource<?> page) {
+    public void addPageOnTop(ItemControllerSource<?> page) {
         addPageOnTopWhenSafe(page);
     }
 
-    private void addPageOnTopWhenSafe(final PresenterSource<?> page) {
+    private void addPageOnTopWhenSafe(final ItemControllerSource<?> page) {
         proessWhenSafe(new Runnable() {
             @Override
             public void run() {
@@ -93,7 +93,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
         });
     }
 
-    private void addPageOnTopInternal(PresenterSource<?> page) {
+    private void addPageOnTopInternal(ItemControllerSource<?> page) {
         PaginatedSourceItem item = new PaginatedSourceItem(page);
         item.source.setViewInteractor(getViewInteractor());
         int itemsInserted = item.source.getItemCount();
@@ -129,11 +129,11 @@ public class PaginatedSource extends PresenterSource<Presenter> {
     }
 
 
-    public void addPageInBottom(PresenterSource<?> page) {
+    public void addPageInBottom(ItemControllerSource<?> page) {
         addPagInBottomWhenSafe(page);
     }
 
-    private void addPagInBottomWhenSafe(final PresenterSource<?> page) {
+    private void addPagInBottomWhenSafe(final ItemControllerSource<?> page) {
         proessWhenSafe(new Runnable() {
             @Override
             public void run() {
@@ -142,7 +142,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
         });
     }
 
-    private void addPageInBottomInternal(PresenterSource<?> page) {
+    private void addPageInBottomInternal(ItemControllerSource<?> page) {
         final boolean oldHadMoreBottomPages = this.hasMoreBottomPage;
         this.hasMoreBottomPage = callbacks.hasMoreBottomPage();
         PaginatedSourceItem item = new PaginatedSourceItem(page);
@@ -169,17 +169,17 @@ public class PaginatedSource extends PresenterSource<Presenter> {
     }
 
     @Override
-    public int getItemPosition(Presenter item) {
+    public int getItemPosition(ItemController item) {
         return 0;
     }
 
 
     @Override
-    public Presenter getItem(int position) {
+    public ItemController getItem(int position) {
         if (position == 0 && hasMoreTopPage) {
-            return this.loadingItemPresenter;
+            return this.loadingItemItemController;
         } else if (position == getItemCount() - 1 && hasMoreBottomPage) {
-            return this.loadingItemPresenter;
+            return this.loadingItemItemController;
         } else {
             PaginatedSourceItem item = decodeAdapterItem(position);
             return item.source.getItem(position - item.startPosition);
@@ -318,7 +318,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
 
     @Override
     public void onDetached() {
-        loadingItemPresenter.onDestroy();
+        loadingItemItemController.onDestroy();
         for (PaginatedSourceItem item : sources) {
             item.source.onDetached();
         }
@@ -351,9 +351,9 @@ public class PaginatedSource extends PresenterSource<Presenter> {
 
         public void loadNextTopPage();
 
-        public void unloadingTopPage(PresenterSource<?> source);
+        public void unloadingTopPage(ItemControllerSource<?> source);
 
-        public void unloadingBottomPage(PresenterSource<?> source);
+        public void unloadingBottomPage(ItemControllerSource<?> source);
     }
 
     private void resetIndexes(int startIndex) {
@@ -379,7 +379,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
     class PaginatedSourceItem {
 
         int startPosition;
-        final PresenterSource<?> source;
+        final ItemControllerSource<?> source;
 
         final DisposableObserver<SourceUpdateEvent> updateObserver = new DisposableObserver<SourceUpdateEvent>() {
             @Override
@@ -425,7 +425,7 @@ public class PaginatedSource extends PresenterSource<Presenter> {
         }
 
 
-        PaginatedSourceItem(PresenterSource<?> source) {
+        PaginatedSourceItem(ItemControllerSource<?> source) {
             this.source = source;
             this.source.observeAdapterUpdates().subscribe(updateObserver);
         }

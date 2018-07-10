@@ -1,4 +1,4 @@
-package com.clumob.list.presenter.source;
+package com.clumob.listitem.controller.source;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import io.reactivex.observers.DisposableObserver;
  * Created by prashant.rathore on 24/06/18.
  */
 
-public class MultiplexSource extends PresenterSource<Presenter> {
+public class MultiplexSource extends ItemControllerSource<ItemController> {
 
     private List<AdapterAsItem> adapters = new ArrayList<>();
     private boolean isAttached;
@@ -40,7 +40,7 @@ public class MultiplexSource extends PresenterSource<Presenter> {
         return false;
     }
 
-    public void addAdapter(PresenterSource<? extends Presenter> adapter) {
+    public void addAdapter(ItemControllerSource<? extends ItemController> adapter) {
         AdapterAsItem item = new AdapterAsItem(adapter);
         if (adapters.size() > 0) {
             AdapterAsItem previousItem = adapters.get(adapters.size() - 1);
@@ -63,7 +63,7 @@ public class MultiplexSource extends PresenterSource<Presenter> {
     }
 
     @Override
-    public Presenter getItem(int position) {
+    public ItemController getItem(int position) {
         AdapterAsItem item = decodeAdapterItem(position);
         return item.adapter.getItem(position - item.startPosition);
     }
@@ -95,7 +95,7 @@ public class MultiplexSource extends PresenterSource<Presenter> {
     }
 
     @Override
-    public int getItemPosition(Presenter item) {
+    public int getItemPosition(ItemController item) {
         int top = 0;
         int itemPosition = -1;
         for (AdapterAsItem adapterAsItem : adapters) {
@@ -108,7 +108,7 @@ public class MultiplexSource extends PresenterSource<Presenter> {
         return itemPosition;
     }
 
-    public PresenterSource removeAdapter(final int removeAdapterAtPosition) {
+    public ItemControllerSource removeAdapter(final int removeAdapterAtPosition) {
         AdapterAsItem remove = adapters.remove(removeAdapterAtPosition);
         final int removePositionStart = remove.startPosition;
         int nextAdapterStartPosition = removePositionStart;
@@ -138,7 +138,7 @@ public class MultiplexSource extends PresenterSource<Presenter> {
 
         int startPosition = 0;
 
-        final PresenterSource adapter;
+        final ItemControllerSource adapter;
         final DisposableObserver<SourceUpdateEvent> updateObserver = new DisposableObserver<SourceUpdateEvent>() {
             @Override
             public void onNext(SourceUpdateEvent sourceUpdateEvent) {
@@ -184,7 +184,7 @@ public class MultiplexSource extends PresenterSource<Presenter> {
         }
 
 
-        AdapterAsItem(PresenterSource adapter) {
+        AdapterAsItem(ItemControllerSource adapter) {
             this.adapter = adapter;
             this.adapter.observeAdapterUpdates().subscribe(updateObserver);
         }

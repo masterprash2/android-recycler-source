@@ -1,7 +1,7 @@
 package com.clumob.recyclerview.section;
 
-import com.clumob.list.presenter.source.Presenter;
-import com.clumob.list.presenter.source.SourceUpdateEvent;
+import com.clumob.listitem.controller.source.ItemController;
+import com.clumob.listitem.controller.source.SourceUpdateEvent;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
@@ -10,7 +10,7 @@ import io.reactivex.subjects.PublishSubject;
  * Created by prashant.rathore on 19/06/18.
  */
 
-public abstract class Section<T extends Presenter> {
+public abstract class Section<T extends ItemController> {
 
     private int itemCount;
 

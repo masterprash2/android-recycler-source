@@ -1,4 +1,4 @@
-package com.clumob.list.presenter.source;
+package com.clumob.listitem.controller.source;
 
 import com.google.auto.value.AutoValue;
 

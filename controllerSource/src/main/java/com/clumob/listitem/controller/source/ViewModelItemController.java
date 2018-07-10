@@ -1,14 +1,14 @@
-package com.clumob.list.presenter.source;
+package com.clumob.listitem.controller.source;
 
 /**
  * Created by prashant.rathore on 02/07/18.
  */
 
-public abstract class ViewModelPresenter<VM> implements Presenter {
+public abstract class ViewModelItemController<VM> implements ItemController {
 
     public final VM viewModel;
 
-    public ViewModelPresenter(VM viewModel) {
+    public ViewModelItemController(VM viewModel) {
         this.viewModel = viewModel;
     }
 

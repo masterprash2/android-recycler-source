@@ -8,12 +8,12 @@
 // * Created by prashant.rathore on 24/06/18.
 // */
 //
-//public class SectionInteractorAdapter <Item,Ir extends Presenter<Item>> implements InteractorSource<Item,Ir> {
+//public class SectionInteractorAdapter <Item,Ir extends ItemController<Item>> implements InteractorSource<Item,Ir> {
 //
-//    private final Presenter<InteractorSource<Item, Ir>> sectionInteractor;
+//    private final ItemController<InteractorSource<Item, Ir>> sectionInteractor;
 //    private InteractorSource<Item,Ir> contentAdapter;
 //
-//    public SectionInteractorAdapter(Presenter<InteractorSource<Item,Ir>> sectionInteractor,
+//    public SectionInteractorAdapter(ItemController<InteractorSource<Item,Ir>> sectionInteractor,
 //                                    InteractorSource<Item, Ir> contentAdapter) {
 //        this.contentAdapter = contentAdapter;
 //        this.sectionInteractor = sectionInteractor;

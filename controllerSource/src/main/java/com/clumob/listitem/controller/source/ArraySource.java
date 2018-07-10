@@ -1,4 +1,4 @@
-package com.clumob.list.presenter.source;
+package com.clumob.listitem.controller.source;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.List;
  * Created by prashant.rathore on 24/06/18.
  */
 
-public class ArraySource<P extends Presenter> extends PresenterSource<P> {
+public class ArraySource<P extends ItemController> extends ItemControllerSource<P> {
 
     private List<P> presenters = new ArrayList<>();
 

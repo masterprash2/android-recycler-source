@@ -1,7 +1,7 @@
 package com.clumob.recyclerview.section.presenter;
 
 
-import com.clumob.list.presenter.source.Presenter;
+import com.clumob.listitem.controller.source.ItemController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
  * Created by prashant.rathore on 20/06/18.
  */
 
-public class ArrayPresenterSection<IN extends Presenter> extends PresenterSection<IN> {
+public class ArrayPresenterSection<IN extends ItemController> extends PresenterSection<IN> {
 
     private List<IN> items = new ArrayList<>();
 

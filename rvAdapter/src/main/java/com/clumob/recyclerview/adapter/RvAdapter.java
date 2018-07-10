@@ -7,9 +7,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.clumob.list.presenter.source.Presenter;
-import com.clumob.list.presenter.source.PresenterSource;
-import com.clumob.list.presenter.source.SourceUpdateEvent;
+import com.clumob.listitem.controller.source.ItemController;
+import com.clumob.listitem.controller.source.ItemControllerSource;
+import com.clumob.listitem.controller.source.SourceUpdateEvent;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -22,7 +22,7 @@ import io.reactivex.observers.DisposableObserver;
 
 public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
-    private final PresenterSource presenterSource;
+    private final ItemControllerSource itemControllerSource;
     private final ViewHolderProvider viewHolderProvider;
     private OnRecyclerItemClickListener itemClickListener;
     private RecyclerView recyclerView;
@@ -43,15 +43,15 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
 
     public RvAdapter(ViewHolderProvider viewHolderProvider,
-                     PresenterSource presenterSource) {
-        this.presenterSource = presenterSource;
+                     ItemControllerSource itemControllerSource) {
+        this.itemControllerSource = itemControllerSource;
         this.viewHolderProvider = viewHolderProvider;
-        setHasStableIds(this.presenterSource.hasStableIds());
-        this.presenterSource.setViewInteractor(createViewInteractor());
+        setHasStableIds(this.itemControllerSource.hasStableIds());
+        this.itemControllerSource.setViewInteractor(createViewInteractor());
     }
 
-    private PresenterSource.ViewInteractor createViewInteractor() {
-        return new PresenterSource.ViewInteractor() {
+    private ItemControllerSource.ViewInteractor createViewInteractor() {
+        return new ItemControllerSource.ViewInteractor() {
 
             Deque<Runnable> deque = new LinkedList<>();
             private boolean processingInProgress;
@@ -98,13 +98,13 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
             this.adapterUpdateEventObserver = null;
         }
         this.adapterUpdateEventObserver = new AdapterUpdateObserver();
-        presenterSource.observeAdapterUpdates().subscribe(this.adapterUpdateEventObserver);
-        this.presenterSource.onAttached();
+        itemControllerSource.observeAdapterUpdates().subscribe(this.adapterUpdateEventObserver);
+        this.itemControllerSource.onAttached();
     }
 
     @Override
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        this.presenterSource.onDetached();
+        this.itemControllerSource.onDetached();
         this.recyclerView = null;
         if (this.adapterUpdateEventObserver != null) {
             this.adapterUpdateEventObserver.dispose();
@@ -133,25 +133,25 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
         super.onViewAttachedToWindow(holder);
         holder.onAttach();
 //        Log.d("PAGINATEDP","LP: "+ holder.getLayoutPosition() + " AP:"+holder.getAdapterPosition() + " P:"+holder.getPosition());
-        presenterSource.onItemAttached(holder.getAdapterPosition());
+        itemControllerSource.onItemAttached(holder.getAdapterPosition());
     }
 
     @Override
     public void onBindViewHolder(@NonNull RvViewHolder holder, int position) {
-        Presenter item = presenterSource.getItem(position);
+        ItemController item = itemControllerSource.getItem(position);
         holder.getItemView().setOnClickListener(onClickListener);
         holder.bind(item);
     }
 
     @Override
     public long getItemId(int position) {
-        return presenterSource.getItemId(position);
+        return itemControllerSource.getItemId(position);
     }
 
 
     @Override
     public void onViewDetachedFromWindow(@NonNull RvViewHolder holder) {
-        presenterSource.onItemDetached(holder.getAdapterPosition());
+        itemControllerSource.onItemDetached(holder.getAdapterPosition());
         holder.onDetach();
         super.onViewDetachedFromWindow(holder);
     }
@@ -165,12 +165,12 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
     @Override
     public int getItemViewType(int position) {
 //        Log.d("PAGINATEDIP"," "+position);
-        return presenterSource.getItemType(position);
+        return itemControllerSource.getItemType(position);
     }
 
     @Override
     public int getItemCount() {
-        return presenterSource.getItemCount();
+        return itemControllerSource.getItemCount();
     }
 
     public static interface OnRecyclerItemClickListener {
@@ -204,7 +204,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
                 case UPDATE_ENDS:
                     break;
                 case HAS_STABLE_IDS:
-                    setHasStableIds(presenterSource.hasStableIds());
+                    setHasStableIds(itemControllerSource.hasStableIds());
                     break;
             }
         }
