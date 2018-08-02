@@ -28,7 +28,6 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
     private RecyclerView recyclerView;
     private AdapterUpdateObserver adapterUpdateEventObserver;
 
-    private boolean isComputingLayout;
     private Handler mHandler = new Handler();
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -151,7 +150,6 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
     @Override
     public void onViewDetachedFromWindow(@NonNull RvViewHolder holder) {
-        itemControllerSource.onItemDetached(holder.getAdapterPosition());
         holder.onDetach();
         super.onViewDetachedFromWindow(holder);
     }

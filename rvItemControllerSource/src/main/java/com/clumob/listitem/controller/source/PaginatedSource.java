@@ -175,7 +175,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
 
 
     @Override
-    public ItemController getItem(int position) {
+    public ItemController getItemForPosition(int position) {
         if (position == 0 && hasMoreTopPage) {
             return this.loadingItemItemController;
         } else if (position == getItemCount() - 1 && hasMoreBottomPage) {
@@ -198,8 +198,8 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
         return previous;
     }
 
-    @Override
-    public void onItemDetached(int position) {
+//    @Override
+//    public void onItemDetached(int position) {
 //        trimPagesSafely(position);
 //        bloatPages(position);
 //        if (position == getItemCount() - 1 && hasMoreBottomPage) {
@@ -214,7 +214,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
 //            System.out.print("");
 //        }
 //        adapterAsItem.source.onItemDetached(position);
-    }
+//    }
 
 
     private void trimPagesSafely(final int position) {

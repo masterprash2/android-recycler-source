@@ -15,6 +15,9 @@ public abstract class ItemControllerSource<Controller extends ItemController> {
     private boolean hasMaxLimit;
     private ViewInteractor viewInteractor;
 
+    private Controller lastItem;
+    private int lastItemIndex;
+
     public void setViewInteractor(ViewInteractor viewInteractor) {
         this.viewInteractor = viewInteractor;
     }
@@ -68,17 +71,31 @@ public abstract class ItemControllerSource<Controller extends ItemController> {
 
     public abstract int getItemPosition(Controller item);
 
-    public abstract Controller getItem(int position);
+    public Controller getItem(int position) {
+        if(lastItemIndex == position) {
+            return lastItem;
+        }
+        else {
+            Controller item = getItemForPosition(position);
+            lastItem = item;
+            lastItemIndex = position;
+            return item;
+        }
+    }
 
-    public abstract void onItemDetached(int position);
+    public abstract Controller getItemForPosition(int position);
+
+//    public abstract void onItemDetached(int position);
 
     public abstract void onDetached();
 
     protected final void notifyItemsInserted(int startPosition, int itemsInserted) {
+        resetCachedItems(startPosition);
         final int oldItemCount = this.itemCount;
         this.itemCount = computeItemCountOnItemsInserted(startPosition, itemsInserted);
         final int diff = this.itemCount - oldItemCount;
         publishUpdateEvent(startPosition, SourceUpdateEvent.Type.ITEMS_ADDED, diff);
+        resetCachedItems(startPosition);
     }
 
     private int computeItemCountOnItemsInserted(int startPosition, int itemCount) {
@@ -89,10 +106,12 @@ public abstract class ItemControllerSource<Controller extends ItemController> {
     }
 
     protected final void notifyItemsRemoved(int startPosition, int itemsRemoved) {
+        resetCachedItems(startPosition);
         final int oldItemCount = this.itemCount;
         this.itemCount = computeItemCountOnItemsRemoved(oldItemCount, itemsRemoved);
         final int diff = oldItemCount - this.itemCount;
         publishUpdateEvent(startPosition, SourceUpdateEvent.Type.ITEMS_REMOVED, diff);
+        resetCachedItems(startPosition);
     }
 
     private int computeItemCountOnItemsRemoved(int oldItemCount, int itemCount) {
@@ -104,6 +123,13 @@ public abstract class ItemControllerSource<Controller extends ItemController> {
 
     private int itemCountIfLimitEnabled(int newItemCount) {
         return Math.min(newItemCount, maxCount);
+    }
+
+    private void resetCachedItems(int startPosition) {
+        if(startPosition <= lastItemIndex) {
+            this.lastItemIndex = -1;
+            this.lastItem = null;
+        }
     }
 
     protected abstract int computeItemCount();
@@ -119,6 +145,7 @@ public abstract class ItemControllerSource<Controller extends ItemController> {
 
     public void notifyItemsChanged(int startIndex, int itemCount) {
         if(this.itemCount > startIndex) {
+            resetCachedItems(startIndex);
             publishUpdateEvent(startIndex, SourceUpdateEvent.Type.ITEMS_CHANGED, Math.min(this.itemCount - startIndex, itemCount));
         }
     }

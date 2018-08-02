@@ -52,8 +52,8 @@
 //    }
 //
 //    @Override
-//    public InteractorItem<Item, Ir> getItem(int position) {
-//        return contentAdapter.getItem(position);
+//    public InteractorItem<Item, Ir> getItemForPosition(int position) {
+//        return contentAdapter.getItemForPosition(position);
 //    }
 //
 //    @Override

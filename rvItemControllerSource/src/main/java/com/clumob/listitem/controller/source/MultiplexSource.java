@@ -63,16 +63,16 @@ public class MultiplexSource extends ItemControllerSource<ItemController> {
     }
 
     @Override
-    public ItemController getItem(int position) {
+    public ItemController getItemForPosition(int position) {
         AdapterAsItem item = decodeAdapterItem(position);
         return item.adapter.getItem(position - item.startPosition);
     }
 
-    @Override
-    public void onItemDetached(int position) {
-        AdapterAsItem adapterAsItem = decodeAdapterItem(position);
-        adapterAsItem.adapter.onItemDetached(position - adapterAsItem.startPosition);
-    }
+//    @Override
+//    public void onItemDetached(int position) {
+//        AdapterAsItem adapterAsItem = decodeAdapterItem(position);
+//        adapterAsItem.adapter.onItemDetached(position - adapterAsItem.startPosition);
+//    }
 
     @Override
     public void onDetached() {

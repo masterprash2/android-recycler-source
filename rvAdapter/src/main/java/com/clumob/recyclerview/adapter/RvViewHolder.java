@@ -47,7 +47,6 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
         controller = null;
     }
 
+
     protected abstract void unBindView();
-
-
 }

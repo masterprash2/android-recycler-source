@@ -58,14 +58,14 @@ public class ArraySource<P extends ItemController> extends ItemControllerSource<
     }
 
     @Override
-    public P getItem(int position) {
+    public P getItemForPosition(int position) {
         return presenters.get(position);
     }
 
-    @Override
-    public void onItemDetached(int position) {
-
-    }
+//    @Override
+//    public void onItemDetached(int position) {
+//
+//    }
 
     @Override
     public void onDetached() {

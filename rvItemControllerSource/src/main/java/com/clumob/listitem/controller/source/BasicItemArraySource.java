@@ -48,7 +48,7 @@
 //    }
 //
 //    @Override
-//    public InteractorItem<Item, ItemController<Item>> getItem(int position) {
+//    public InteractorItem<Item, ItemController<Item>> getItemForPosition(int position) {
 //        return reusableItem.mutate(contentItems.get(position));
 //    }
 //
