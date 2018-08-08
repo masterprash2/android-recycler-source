@@ -25,3 +25,35 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+
+ext {
+    libVersion = "0.12.0";
+}
+
+task makeaar(type: Copy) {
+    def versionString = project.libVersion
+    from fileTree(".").files
+    into 'build/libs-rvadapter/'+versionString
+    include "rv*-debug.aar"
+    exclude 'build', 'external-libs', 'external-libs-compileonly', 'app'
+    includeEmptyDirs = false
+    rename { String fileName ->
+        fileName.replace('-debug', '@rv-v'+versionString)
+    }
+}
+
+
+
+task buildsdk(type: Copy, dependsOn: makeaar) {
+    def versionString = project.libVersion
+    from fileTree(".").files
+    into 'build/libs-rvadapter/'+versionString
+    include 'rv*.jar'
+    exclude 'build', 'external-libs', 'external-libs-compileonly', 'app'
+    includeEmptyDirs = false
+    rename { String fileName ->
+        fileName.replace('.jar', '@rv-v'+versionString+'.jar')
+    }
+}
+

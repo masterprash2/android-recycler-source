@@ -172,6 +172,10 @@ public abstract class ItemControllerSource<Controller extends ItemController> {
         }
     }
 
+    public void notifyItemsMoved(int fromPosition, int toPosition) {
+
+    }
+
     public interface ViewInteractor {
         public void processWhenSafe(Runnable runnable);
         public void cancelOldProcess(Runnable runnable);

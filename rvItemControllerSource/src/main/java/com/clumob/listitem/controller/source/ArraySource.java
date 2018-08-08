@@ -2,18 +2,23 @@ package com.clumob.listitem.controller.source;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by prashant.rathore on 24/06/18.
  */
 
-public class ArraySource<P extends ItemController> extends ItemControllerSource<P> {
+public class ArraySource<Controller extends ItemController> extends ItemControllerSource<Controller> {
 
-    private List<P> presenters = new ArrayList<>();
+    private List<Controller> controller = new ArrayList<>();
+
+    public ArraySource() {
+    }
 
     @Override
     public void onAttached() {
-        for (P item : presenters) {
+        for (Controller item : controller) {
             item.onCreate();
         }
     }
@@ -23,28 +28,35 @@ public class ArraySource<P extends ItemController> extends ItemControllerSource<
 
     }
 
-    public void switchItems(List<P> newItems) {
-        int diff = newItems.size() - this.presenters.size();
+    public List<Controller> getItems() {
+        return controller;
+    }
+
+    public void setItems(List<Controller> items) {
+        this.controller = controller;
+    }
+
+    public void switchItems(final List<Controller> newItems) {
+        this.controller = newItems;
+        int diff = newItems.size() - this.controller.size();
         beginUpdates();
         if (diff > 0) {
-            notifyItemsInserted(this.presenters.size(), diff);
+            notifyItemsInserted(this.controller.size(), diff);
         } else {
             notifyItemsRemoved(newItems.size(), diff * (-1));
         }
         endUpdates();
-        this.presenters = newItems;
     }
 
-
-    public void replaceItem(int index, P item) {
-        this.presenters.set(index, item);
+    public void replaceItem(int index, Controller item) {
+        this.controller.set(index, item);
         item.onCreate();
         notifyItemsChanged(index, 1);
     }
 
     @Override
-    public int getItemPosition(P item) {
-        return this.presenters.indexOf(item);
+    public int getItemPosition(Controller item) {
+        return this.controller.indexOf(item);
     }
 
     @Override
@@ -54,12 +66,12 @@ public class ArraySource<P extends ItemController> extends ItemControllerSource<
 
     @Override
     protected int computeItemCount() {
-        return presenters.size();
+        return controller.size();
     }
 
     @Override
-    public P getItemForPosition(int position) {
-        return presenters.get(position);
+    public Controller getItemForPosition(int position) {
+        return controller.get(position);
     }
 
 //    @Override
@@ -69,7 +81,7 @@ public class ArraySource<P extends ItemController> extends ItemControllerSource<
 
     @Override
     public void onDetached() {
-        for (P item : presenters) {
+        for (Controller item : controller) {
             item.onDetach();
         }
     }
