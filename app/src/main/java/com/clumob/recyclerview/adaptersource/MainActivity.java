@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.clumob.listitem.controller.source.ArraySource;
 import com.clumob.listitem.controller.source.ItemController;
 import com.clumob.listitem.controller.source.ItemControllerSource;
+import com.clumob.listitem.controller.source.ItemUpdatePublisher;
 import com.clumob.listitem.controller.source.MultiplexSource;
 import com.clumob.listitem.controller.source.PaginatedSource;
 import com.clumob.recyclerview.adapter.RvAdapter;
@@ -191,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onCreate() {
+        public void onCreate(ItemUpdatePublisher updatePublisher) {
 
         }
 

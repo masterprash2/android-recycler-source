@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 
 /**
@@ -25,6 +26,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
     private int lastItemAttached;
 
     private Runnable trimPagesRunnable;
+    private ItemUpdatePublisher itemUpdatePublisher = new ItemUpdatePublisher();
 
     public PaginatedSource(ItemController loadingItemItemController, int preloadTriggerSize, PagenatedCallbacks callbacks) {
         this.loadingItemItemController = loadingItemItemController;
@@ -45,7 +47,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
 
     @Override
     public void onAttached() {
-        loadingItemItemController.onCreate();
+        loadingItemItemController.onCreate(itemUpdatePublisher);
         for (PaginatedSourceItem item : sources) {
             item.source.onAttached();
         }

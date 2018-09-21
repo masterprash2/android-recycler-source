@@ -13,7 +13,7 @@ public abstract class ViewModelItemController<VM> implements ItemController {
     }
 
     @Override
-    public void onCreate() {
+    public void onCreate(ItemUpdatePublisher publisher) {
 
     }
 

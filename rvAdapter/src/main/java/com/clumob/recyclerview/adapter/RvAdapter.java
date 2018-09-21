@@ -71,11 +71,14 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
                         if (isComputingLayout()) {
                             mHandler.post(this);
                         } else {
-                            while (deque.peekFirst() != null) {
+                            if (deque.peekFirst() != null) {
                                 Runnable runnable = deque.pollFirst();
                                 runnable.run();
+                                mHandler.post(this);
                             }
-                            processingInProgress = false;
+                            else {
+                                processingInProgress = false;
+                            }
                         }
                     }
                 });
