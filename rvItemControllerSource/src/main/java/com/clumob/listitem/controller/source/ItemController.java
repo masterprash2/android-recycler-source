@@ -7,6 +7,7 @@ import io.reactivex.subjects.BehaviorSubject;
  */
 
 public interface ItemController {
+
     void onCreate(ItemUpdatePublisher itemUpdatePublisher);
     void onAttach();
     void onDetach();

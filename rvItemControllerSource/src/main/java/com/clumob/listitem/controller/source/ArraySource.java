@@ -42,7 +42,7 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
     }
 
     public void setItems(List<Controller> items) {
-        this.controller = controller;
+        switchItems(items);
     }
 
     public void switchItems(List<Controller> items) {
@@ -57,39 +57,68 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
             public void run() {
                 final int oldCount = controller.size();
                 final int newCount = newItems.size();
-                for (Controller item : controller) {
-                    item.onDetach();
-                    item.onDestroy();
-                }
-                for (Controller item : newItems) {
-                    item.onCreate(itemUpdatePublisher);
-                }
-                int diff = newCount - oldCount;
+                DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                    @Override
+                    public int getOldListSize() {
+                        return controller.size();
+                    }
+
+                    @Override
+                    public int getNewListSize() {
+                        return newItems.size();
+                    }
+
+                    @Override
+                    public boolean areItemsTheSame(int oldPosition, int newPosition) {
+                        Controller itemOld = ArraySource.this.controller.get(oldPosition);
+                        Controller itemNew = newItems.get(newPosition);
+                        boolean equals = itemOld == itemNew || itemOld.hashCode() == itemNew.hashCode() && itemOld.equals(itemNew);
+                        if(equals) {
+                            newItems.set(newPosition, itemOld);
+                        }
+                        return equals;
+                    }
+
+                    @Override
+                    public boolean areContentsTheSame(int oldPosition, int newPosition) {
+                        return areItemsTheSame(oldPosition,newPosition);
+                    }
+                }, false);
+
                 controller = newItems;
                 beginUpdates();
-                if (diff > 0) {
-                    notifyItemsInserted(oldCount, diff);
-                    notifyItemsChanged(0, oldCount);
-                } else if (diff < 0) {
-                    notifyItemsRemoved(newCount, diff * (-1));
-                    notifyItemsChanged(0, newCount);
-                } else {
-                    notifyItemsChanged(0, newCount);
-                }
+                diffResult.dispatchUpdatesTo(ArraySource.this);
+//                int diff = newCount - oldCount;
+//                controller = newItems;
+//
+//                if (diff > 0) {
+//                    notifyItemsInserted(oldCount, diff);
+//                    notifyItemsChanged(0, oldCount);
+//                } else if (diff < 0) {
+//                    notifyItemsRemoved(newCount, diff * (-1));
+//                    notifyItemsChanged(0, newCount);
+//                } else {
+//                    notifyItemsChanged(0, newCount);
+//                }
                 endUpdates();
                 if (isAttached) {
                     for (Controller item : newItems) {
-                        item.onAttach();
+                        item.onCreate(itemUpdatePublisher);
                     }
                 }
             }
         });
+
     }
 
+
     public void replaceItem(int index, Controller item) {
-        this.controller.set(index, item);
-        item.onCreate();
+        Controller set = this.controller.set(index, item);
+        set.onDestroy();
         notifyItemsChanged(index, 1);
+        if (isAttached) {
+            item.onCreate(itemUpdatePublisher);
+        }
     }
 
     @Override

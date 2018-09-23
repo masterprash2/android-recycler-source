@@ -14,7 +14,9 @@ import com.clumob.listitem.controller.source.SourceUpdateEvent;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import io.reactivex.Observable;
 import io.reactivex.observers.DisposableObserver;
+import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * Created by prashant.rathore on 28/05/18.
@@ -24,6 +26,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
     private final ItemControllerSource itemControllerSource;
     private final ViewHolderProvider viewHolderProvider;
+    private final Observable<Boolean> screenVisibilityObserver;
     private OnRecyclerItemClickListener itemClickListener;
     private RecyclerView recyclerView;
     private AdapterUpdateObserver adapterUpdateEventObserver;
@@ -42,11 +45,13 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
 
     public RvAdapter(ViewHolderProvider viewHolderProvider,
-                     ItemControllerSource itemControllerSource) {
+                     ItemControllerSource itemControllerSource,
+                     BehaviorSubject<Boolean> screenVisibilityObserver) {
         this.itemControllerSource = itemControllerSource;
         this.viewHolderProvider = viewHolderProvider;
         setHasStableIds(this.itemControllerSource.hasStableIds());
         this.itemControllerSource.setViewInteractor(createViewInteractor());
+        this.screenVisibilityObserver = screenVisibilityObserver;
     }
 
     private ItemControllerSource.ViewInteractor createViewInteractor() {
@@ -126,7 +131,9 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
     @NonNull
     @Override
     public RvViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return viewHolderProvider.provideViewHolder(parent, viewType);
+        RvViewHolder<? extends ItemController> rvViewHolder = viewHolderProvider.provideViewHolder(parent, viewType);
+        rvViewHolder.setScreenVisibilityObserver(this.screenVisibilityObserver);
+        return rvViewHolder;
     }
 
 

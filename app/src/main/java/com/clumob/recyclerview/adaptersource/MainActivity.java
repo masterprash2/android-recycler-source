@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import io.reactivex.subjects.BehaviorSubject;
+
 public class MainActivity extends AppCompatActivity {
 
 
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private RecyclerView.Adapter createRecyclerViewAdapter() {
-        return new RvAdapter(createViewHolderProvider(), createPaginatedSource());
+        return new RvAdapter(createViewHolderProvider(), createPaginatedSource(), BehaviorSubject.<Boolean>create());
     }
 
     private boolean removeAdapter;
