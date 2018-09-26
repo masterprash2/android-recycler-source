@@ -1,6 +1,7 @@
 package com.clumob.recyclerview.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import com.clumob.listitem.controller.source.ItemController;
@@ -37,17 +38,29 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
     void bind(Controller controller) {
         this.controller = controller;
         bindView();
-        observeScreenVisibility(this.screenVisibilityObservable);
+        if(this.screenVisibilityObserver == null || this.screenVisibilityObserver.isDisposed()) {
+            observeScreenVisibility(this.screenVisibilityObservable);
+        }
     }
 
     protected abstract void bindView();
 
     void onAttach() {
         controller.onAttach();
+        onAttached();
+    }
+
+    protected void onAttached() {
+
     }
 
     void onDetach() {
+        onDetached();
         controller.onDetach();
+    }
+
+    public void onDetached() {
+
     }
 
     void unBind() {
@@ -77,15 +90,19 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
         this.screenVisibilityObserver = observable.subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(Boolean aBoolean) throws Exception {
-                isScreenInFocus = aBoolean;
-                if (isScreenInFocus) {
-                    onScreenIsInFocus();
-                } else {
-                    onScreenIsOutOfFocus();
-                }
+                updateScreenFocus(aBoolean);
             }
         });
 
+    }
+
+    private void updateScreenFocus(boolean isInFocus) {
+        isScreenInFocus = isInFocus;
+        if (isScreenInFocus) {
+            onScreenIsInFocus();
+        } else {
+            onScreenIsOutOfFocus();
+        }
     }
 
     protected void onScreenIsInFocus() {
