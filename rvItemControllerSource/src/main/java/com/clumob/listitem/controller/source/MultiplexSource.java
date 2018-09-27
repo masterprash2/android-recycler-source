@@ -42,6 +42,7 @@ public class MultiplexSource extends ItemControllerSource<ItemController> {
 
     public void addAdapter(ItemControllerSource<? extends ItemController> adapter) {
         AdapterAsItem item = new AdapterAsItem(adapter);
+        adapter.setViewInteractor(this.getViewInteractor());
         if (adapters.size() > 0) {
             AdapterAsItem previousItem = adapters.get(adapters.size() - 1);
             item.startPosition = previousItem.startPosition + previousItem.adapter.getItemCount();
@@ -118,6 +119,7 @@ public class MultiplexSource extends ItemControllerSource<ItemController> {
             nextAdapterStartPosition = adapterAsItem.startPosition + adapterAsItem.adapter.getItemCount();
         }
         notifyItemsRemoved(removePositionStart, remove.adapter.getItemCount());
+        remove.adapter.setViewInteractor(null);
         return remove.adapter;
     }
 
