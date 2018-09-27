@@ -48,10 +48,20 @@ public abstract class ItemControllerSource<Controller extends ItemController> {
         return itemCount;
     }
 
-    public void setMaxLimit(int limit)  {
+    public void setMaxLimit(final int limit)  {
         if(limit < 0) {
             throw new IllegalArgumentException("Max Limit cannot be < 0");
         }
+        processWhenSafe(new Runnable() {
+            @Override
+            public void run() {
+                setMaxLimitWhenSafe(limit);
+            }
+        });
+
+    }
+
+    private void setMaxLimitWhenSafe(int limit) {
         this.hasMaxLimit = true;
         this.maxCount = limit;
         if(maxCount < this.itemCount) {
@@ -60,6 +70,15 @@ public abstract class ItemControllerSource<Controller extends ItemController> {
     }
 
     public void removeMaxLimit() {
+        processWhenSafe(new Runnable() {
+            @Override
+            public void run() {
+                removeMaxLimitWhenSafe();
+            }
+        });
+    }
+
+    private void removeMaxLimitWhenSafe() {
         this.hasMaxLimit = false;
         final int oldItemCount = this.itemCount;
         final int newItemCount = computeItemCount();
@@ -158,7 +177,7 @@ public abstract class ItemControllerSource<Controller extends ItemController> {
         publishUpdateEvent(0, SourceUpdateEvent.Type.UPDATE_BEGINS,0);
     }
 
-    protected void proessWhenSafe(Runnable runnable) {
+    protected void processWhenSafe(Runnable runnable) {
         if(viewInteractor == null) {
             runnable.run();
         }

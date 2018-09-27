@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 
 /**
@@ -87,7 +86,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
     }
 
     private void addPageOnTopWhenSafe(final ItemControllerSource<?> page) {
-        proessWhenSafe(new Runnable() {
+        processWhenSafe(new Runnable() {
             @Override
             public void run() {
                 addPageOnTopInternal(page);
@@ -136,7 +135,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
     }
 
     private void addPagInBottomWhenSafe(final ItemControllerSource<?> page) {
-        proessWhenSafe(new Runnable() {
+        processWhenSafe(new Runnable() {
             @Override
             public void run() {
                 addPageInBottomInternal(page);
@@ -227,7 +226,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
                 trimPages(position);
             }
         };
-        proessWhenSafe(trimPagesRunnable);
+        processWhenSafe(trimPagesRunnable);
     }
 
     private void trimPages(int detachedItemPosition) {
