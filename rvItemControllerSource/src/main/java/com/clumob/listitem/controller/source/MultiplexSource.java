@@ -24,6 +24,7 @@ public class MultiplexSource extends ItemControllerSource<ItemController> {
 
     @Override
     public void setViewInteractor(ViewInteractor viewInteractor) {
+        super.setViewInteractor(viewInteractor);
         for(AdapterAsItem adapterAsItem : adapters) {
             adapterAsItem.adapter.setViewInteractor(viewInteractor);
         }
