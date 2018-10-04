@@ -41,18 +41,23 @@ public class MultiplexSource extends ItemControllerSource<ItemController> {
         return false;
     }
 
-    public void addAdapter(ItemControllerSource<? extends ItemController> adapter) {
-        AdapterAsItem item = new AdapterAsItem(adapter);
-        adapter.setViewInteractor(this.getViewInteractor());
-        if (adapters.size() > 0) {
-            AdapterAsItem previousItem = adapters.get(adapters.size() - 1);
-            item.startPosition = previousItem.startPosition + previousItem.adapter.getItemCount();
-        }
-        adapters.add(item);
-        if(isAttached) {
-            item.adapter.onAttached();
-        }
-        notifyItemsInserted(item.startPosition, item.adapter.getItemCount());
+    public void addAdapter(final ItemControllerSource<? extends ItemController> adapter) {
+        processWhenSafe(new Runnable() {
+            @Override
+            public void run() {
+                AdapterAsItem item = new AdapterAsItem(adapter);
+                adapter.setViewInteractor(getViewInteractor());
+                if (adapters.size() > 0) {
+                    AdapterAsItem previousItem = adapters.get(adapters.size() - 1);
+                    item.startPosition = previousItem.startPosition + previousItem.adapter.getItemCount();
+                }
+                adapters.add(item);
+                if(isAttached) {
+                    item.adapter.onAttached();
+                }
+                notifyItemsInserted(item.startPosition, item.adapter.getItemCount());
+            }
+        });
     }
 
     @Override
@@ -110,18 +115,23 @@ public class MultiplexSource extends ItemControllerSource<ItemController> {
         return itemPosition;
     }
 
-    public ItemControllerSource removeAdapter(final int removeAdapterAtPosition) {
-        AdapterAsItem remove = adapters.remove(removeAdapterAtPosition);
-        final int removePositionStart = remove.startPosition;
-        int nextAdapterStartPosition = removePositionStart;
-        for (int index = removeAdapterAtPosition; index < adapters.size(); index++) {
-            AdapterAsItem adapterAsItem = adapters.get(index);
-            adapterAsItem.startPosition = nextAdapterStartPosition;
-            nextAdapterStartPosition = adapterAsItem.startPosition + adapterAsItem.adapter.getItemCount();
-        }
-        notifyItemsRemoved(removePositionStart, remove.adapter.getItemCount());
-        remove.adapter.setViewInteractor(null);
-        return remove.adapter;
+    public void removeAdapter(final int removeAdapterAtPosition) {
+        processWhenSafe(new Runnable() {
+            @Override
+            public void run() {
+                AdapterAsItem remove = adapters.remove(removeAdapterAtPosition);
+                final int removePositionStart = remove.startPosition;
+                int nextAdapterStartPosition = removePositionStart;
+                for (int index = removeAdapterAtPosition; index < adapters.size(); index++) {
+                    AdapterAsItem adapterAsItem = adapters.get(index);
+                    adapterAsItem.startPosition = nextAdapterStartPosition;
+                    nextAdapterStartPosition = adapterAsItem.startPosition + adapterAsItem.adapter.getItemCount();
+                }
+                notifyItemsRemoved(removePositionStart, remove.adapter.getItemCount());
+                remove.adapter.setViewInteractor(null);
+            }
+        });
+
     }
 
     void updateIndexes(AdapterAsItem modifiedItem) {
