@@ -42,11 +42,11 @@ public class MultiplexSource extends ItemControllerSource<ItemController> {
     }
 
     public void addAdapter(final ItemControllerSource<? extends ItemController> adapter) {
+        final AdapterAsItem item = new AdapterAsItem(adapter);
+        adapter.setViewInteractor(getViewInteractor());
         processWhenSafe(new Runnable() {
             @Override
             public void run() {
-                AdapterAsItem item = new AdapterAsItem(adapter);
-                adapter.setViewInteractor(getViewInteractor());
                 if (adapters.size() > 0) {
                     AdapterAsItem previousItem = adapters.get(adapters.size() - 1);
                     item.startPosition = previousItem.startPosition + previousItem.adapter.getItemCount();

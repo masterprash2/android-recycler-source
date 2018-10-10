@@ -18,12 +18,12 @@ public abstract class ViewModelItemController<VM> implements ItemController {
     }
 
     @Override
-    public void onAttach() {
+    public void onAttach(Object source) {
 
     }
 
     @Override
-    public void onDetach() {
+    public void onDetach(Object source) {
 
     }
 

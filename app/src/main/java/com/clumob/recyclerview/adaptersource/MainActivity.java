@@ -199,12 +199,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onAttach() {
+        public void onAttach(Object so) {
 
         }
 
         @Override
-        public void onDetach() {
+        public void onDetach(Object source) {
 
         }
 

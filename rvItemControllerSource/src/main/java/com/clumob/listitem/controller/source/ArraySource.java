@@ -89,7 +89,7 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
         switchItems(items,false);
     }
 
-    private void switchItemsWithDiffRemovalAndInsertions(List<Controller> items) {
+    public void switchItemsWithDiffRemovalAndInsertions(List<Controller> items) {
         switchItems(items,true);
     }
 
@@ -172,7 +172,7 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
             @Override
             public void accept(ItemController itemController) throws Exception {
                 int index = controller.indexOf(itemController);
-                notifyItemsChanged(index, 0);
+                notifyItemsChanged(index, 1);
             }
         });
     }
@@ -182,7 +182,7 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
         compositeDisposable.dispose();
         isAttached = false;
         for (Controller item : controller) {
-            item.onDetach();
+            item.onDetach(null);
         }
     }
 

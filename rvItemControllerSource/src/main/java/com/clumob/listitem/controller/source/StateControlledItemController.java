@@ -1,5 +1,8 @@
 package com.clumob.listitem.controller.source;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by prashant.rathore on 21/09/18.
  */
@@ -16,6 +19,8 @@ public abstract class StateControlledItemController implements ItemController {
     }
 
     private State currentState = State.IDLE;
+
+    private Set<Object> attachedSources = new HashSet<>();
 
     @Override
     public final void onCreate(ItemUpdatePublisher itemUpdatePublisher) {
@@ -34,7 +39,12 @@ public abstract class StateControlledItemController implements ItemController {
 
 
     @Override
-    public final void onAttach() {
+    public final void onAttach(Object source) {
+        if(attachedSources.size() > 0) {
+            attachedSources.add(source);
+            return;
+        }
+        attachedSources.add(source);
         switch (currentState) {
             case IDLE:
                 currentState = State.ATTACHED;
@@ -56,7 +66,14 @@ public abstract class StateControlledItemController implements ItemController {
 
 
     @Override
-    public final void onDetach() {
+    public final void onDetach(Object source) {
+        if(source != null && !attachedSources.contains(source)) {
+            return;
+        }
+        attachedSources.remove(source);
+        if(attachedSources.size() > 0) {
+            return;
+        }
         switch (currentState) {
             case DESTROYED:
             case IDLE:
