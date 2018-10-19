@@ -46,8 +46,8 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
     protected abstract void bindView();
 
     void onAttach() {
-        controller.onAttach(this);
         onAttached();
+        controller.onAttach(this);
     }
 
     protected void onAttached() {
@@ -55,8 +55,8 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
     }
 
     void onDetach() {
-        onDetached();
         controller.onDetach(this);
+        onDetached();
     }
 
     public void onDetached() {

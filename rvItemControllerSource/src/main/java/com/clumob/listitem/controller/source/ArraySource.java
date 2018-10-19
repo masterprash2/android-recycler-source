@@ -170,9 +170,15 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
     private Disposable observeItemUpdates() {
         return itemUpdatePublisher.observeEvents().subscribe(new Consumer<ItemController>() {
             @Override
-            public void accept(ItemController itemController) throws Exception {
-                int index = controller.indexOf(itemController);
-                notifyItemsChanged(index, 1);
+            public void accept(final ItemController itemController) throws Exception {
+                processWhenSafe(new Runnable() {
+                    @Override
+                    public void run() {
+                        int index = controller.indexOf(itemController);
+                        if(index >= 0)
+                            notifyItemsChanged(index, 1);
+                    }
+                });
             }
         });
     }
