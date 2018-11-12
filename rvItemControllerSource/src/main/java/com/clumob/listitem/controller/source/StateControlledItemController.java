@@ -10,11 +10,11 @@ import java.util.Set;
 public abstract class StateControlledItemController implements ItemController {
 
     private ItemUpdatePublisher itemUpdatePublisher;
+
     enum State {
         IDLE,
         CREATED,
         ATTACHED,
-        DETACHED,
         DESTROYED
     }
 
@@ -40,24 +40,23 @@ public abstract class StateControlledItemController implements ItemController {
 
     @Override
     public final void onAttach(Object source) {
-        if(attachedSources.size() > 0) {
+        if (attachedSources.size() > 0) {
             attachedSources.add(source);
             return;
         }
         attachedSources.add(source);
         switch (currentState) {
             case IDLE:
-                currentState = State.ATTACHED;
-                created();
+                onCreate(itemUpdatePublisher);
+                currentState = State.CREATED;
             case CREATED:
-            case DETACHED:
                 currentState = State.ATTACHED;
                 attached();
                 break;
             case DESTROYED:
-                currentState = State.ATTACHED;
-                created();
+                onCreate(itemUpdatePublisher);
                 attached();
+                currentState = State.ATTACHED;
                 break;
         }
     }
@@ -67,26 +66,24 @@ public abstract class StateControlledItemController implements ItemController {
 
     @Override
     public final void onDetach(Object source) {
-        if(source != null && !attachedSources.contains(source)) {
+        if (source != null && !attachedSources.contains(source)) {
             return;
         }
         attachedSources.remove(source);
-        if(attachedSources.size() > 0) {
+        if (attachedSources.size() > 0) {
             return;
         }
         switch (currentState) {
             case DESTROYED:
             case IDLE:
-                currentState = State.DESTROYED;
-                created();
+                onCreate(itemUpdatePublisher);
+                currentState = State.CREATED;
                 break;
             case CREATED:
                 break;
             case ATTACHED:
-                currentState = State.DESTROYED;
+                currentState = State.CREATED;
                 detached();
-                break;
-            case DETACHED:
                 break;
         }
     }
@@ -106,10 +103,6 @@ public abstract class StateControlledItemController implements ItemController {
             case ATTACHED:
                 currentState = State.DESTROYED;
                 detached();
-            case DETACHED:
-                currentState = State.DESTROYED;
-                destroyed();
-                break;
         }
     }
 

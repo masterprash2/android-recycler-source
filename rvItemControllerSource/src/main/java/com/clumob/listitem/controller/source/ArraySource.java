@@ -1,7 +1,9 @@
 package com.clumob.listitem.controller.source;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -57,7 +59,9 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
             public void run() {
                 final int oldCount = controller.size();
                 final int newCount = newItems.size();
-                DiffUtil.DiffResult diffResult = diffResults(controller,newItems);
+                Set<Controller> retained = new HashSet<>();
+                DiffUtil.DiffResult diffResult = diffResults(controller,newItems,retained);
+                List<Controller> oldItems = ArraySource.this.controller;
                 controller = newItems;
                 beginUpdates();
                 if(useDiffProcess) {
@@ -81,6 +85,12 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
                         item.onCreate(itemUpdatePublisher);
                     }
                 }
+                if(oldItems != null) {
+                    oldItems.removeAll(retained);
+                    for(Controller item : oldItems) {
+                        item.onDestroy();
+                    }
+                }
             }
         });
     }
@@ -93,7 +103,7 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
         switchItems(items,true);
     }
 
-    private DiffUtil.DiffResult diffResults(final List<Controller> oldItems, final List<Controller> newItems) {
+    private DiffUtil.DiffResult diffResults(final List<Controller> oldItems, final List<Controller> newItems, final Set<Controller> retained) {
         return DiffUtil.calculateDiff(new DiffUtil.Callback() {
             @Override
             public int getOldListSize() {
@@ -112,6 +122,7 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
                 boolean equals = itemOld == itemNew || itemOld.hashCode() == itemNew.hashCode() && itemOld.equals(itemNew);
                 if(equals) {
                     newItems.set(newPosition, itemOld);
+                    retained.add(itemOld);
                 }
                 return equals;
             }
@@ -188,7 +199,7 @@ public class ArraySource<Controller extends ItemController> extends ItemControll
         compositeDisposable.dispose();
         isAttached = false;
         for (Controller item : controller) {
-            item.onDetach(null);
+            item.onDestroy();
         }
     }
 

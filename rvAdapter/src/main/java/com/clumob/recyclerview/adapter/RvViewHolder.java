@@ -21,6 +21,7 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
     private boolean isScreenInFocus;
     private Observable<Boolean> screenVisibilityObservable;
     private Disposable screenVisibilityObserver;
+    private boolean isBounded;
 
     public RvViewHolder(View itemView) {
         super(itemView);
@@ -36,11 +37,15 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
     }
 
     void bind(Controller controller) {
+        if(isBounded) {
+            unBind();
+        }
         this.controller = controller;
         bindView();
         if(this.screenVisibilityObserver == null || this.screenVisibilityObserver.isDisposed()) {
             observeScreenVisibility(this.screenVisibilityObservable);
         }
+        isBounded = true;
     }
 
     protected abstract void bindView();
@@ -71,6 +76,7 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
         }
         this.screenVisibilityObserver = null;
         this.isScreenInFocus = false;
+        isBounded = false;
     }
 
 
