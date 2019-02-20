@@ -97,36 +97,43 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
     private void addPageOnTopInternal(ItemControllerSource<?> page) {
         PaginatedSourceItem item = new PaginatedSourceItem(page);
         item.source.setViewInteractor(getViewInteractor());
-        int itemsInserted = item.source.getItemCount();
-        int startPosition = 0;
         final boolean oldHadMoreTopPage = this.hasMoreTopPage;
+        int startPosition = oldHadMoreTopPage ? 1 : 0;
         this.hasMoreTopPage = callbacks.hasMoreTopPage();
+
+
         if (this.hasMoreTopPage != oldHadMoreTopPage) {
             if (oldHadMoreTopPage) {
                 startPosition = 0;
-                notifyItemsRemoved(0, 1);
             } else {
-                itemsInserted++;
                 startPosition = 1;
             }
-        } else if (oldHadMoreTopPage) {
-            startPosition++;
         }
 
         item.startPosition = startPosition;
         sources.add(0, item);
         updateIndexes(item);
         if (isAttached) {
-            item.source.onAttached();
+            item.attach();
         }
 
-        if (hasMoreBottomPage != callbacks.hasMoreBottomPage()) {
-            hasMoreBottomPage = !hasMoreBottomPage;
-            if (hasMoreBottomPage) {
-                itemsInserted++;
+
+        if (this.hasMoreTopPage != oldHadMoreTopPage) {
+            if (oldHadMoreTopPage) {
+                if(page.getItemCount() > 0) {
+                    notifyItemsChanged(0, 1);
+                    notifyItemsInserted(1, page.getItemCount() - 1);
+                }
+                else {
+                    notifyItemsRemoved(0,1);
+                }
+            } else {
+                notifyItemsInserted(0, page.getItemCount() + 1);
             }
         }
-        notifyItemsInserted(item.startPosition, itemsInserted);
+        else {
+            notifyItemsInserted(startPosition,page.getItemCount());
+        }
     }
 
 
@@ -147,20 +154,31 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
         final boolean oldHadMoreBottomPages = this.hasMoreBottomPage;
         this.hasMoreBottomPage = callbacks.hasMoreBottomPage();
         PaginatedSourceItem item = new PaginatedSourceItem(page);
-        int startPosition = getItemCount() - 1;
-        int itemCount = page.getItemCount();
-        if (this.hasMoreBottomPage != oldHadMoreBottomPages) {
-            if (oldHadMoreBottomPages) {
-                startPosition--;
-                notifyItemsRemoved(item.startPosition, 1);
-            } else {
-                itemCount++;
-            }
-        }
+        int startPosition = getItemCount() - (oldHadMoreBottomPages ? 1 : 0);
+
         item.startPosition = startPosition;
         item.source.setViewInteractor(getViewInteractor());
+
         sources.add(item);
-        notifyItemsInserted(item.startPosition, itemCount);
+        if (isAttached) {
+            item.source.onAttached();
+        }
+        if (this.hasMoreBottomPage != oldHadMoreBottomPages) {
+            if (oldHadMoreBottomPages) {
+                if(page.getItemCount() > 0) {
+                    notifyItemsChanged(startPosition, 1);
+                    notifyItemsInserted(startPosition, page.getItemCount() - 1);
+                }
+                else {
+                    notifyItemsRemoved(startPosition, 1);
+                }
+            } else {
+                notifyItemsInserted(startPosition,page.getItemCount()  + 1);
+            }
+        }
+        else {
+            notifyItemsInserted(startPosition,page.getItemCount());
+        }
     }
 
 
@@ -281,6 +299,50 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
         return success;
     }
 
+    public void refreshTopPageAvailability() {
+        getViewInteractor().processWhenSafe(new Runnable() {
+            @Override
+            public void run() {
+                refreshTopPageAvailabilityInternal();
+            }
+        });
+    }
+
+    private void refreshTopPageAvailabilityInternal() {
+        if(this.hasMoreTopPage != this.callbacks.hasMoreTopPage()) {
+            this.hasMoreTopPage = this.callbacks.hasMoreTopPage();
+            if(this.hasMoreTopPage) {
+                notifyItemsInserted(0,1);
+            }
+            else {
+                notifyItemsRemoved(0,1);
+            }
+        }
+    }
+
+
+    public void refreshBottomPageAvailability() {
+        getViewInteractor().processWhenSafe(new Runnable() {
+            @Override
+            public void run() {
+                refreshBottomPageAvailabilityInternal();
+            }
+        });
+    }
+
+    private void refreshBottomPageAvailabilityInternal() {
+        if(this.hasMoreBottomPage != this.callbacks.hasMoreBottomPage()) {
+            int count = getItemCount();
+            this.hasMoreBottomPage = this.callbacks.hasMoreBottomPage();
+            if(this.hasMoreBottomPage) {
+                notifyItemsInserted(count,1);
+            }
+            else {
+                notifyItemsRemoved(count-1,1);
+            }
+        }
+    }
+
     private boolean trimBottomPage(int detachedItemPosition) {
         boolean success = false;
         if (detachedItemPosition + safeLimit < getItemCount()) {
@@ -321,7 +383,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
     public void onDetached() {
         loadingItemItemController.onDestroy();
         for (PaginatedSourceItem item : sources) {
-            item.source.onDetached();
+            item.detach();
         }
         isAttached = false;
     }
@@ -330,11 +392,11 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
     protected int computeItemCount() {
         this.hasMoreTopPage = callbacks.hasMoreTopPage();
         int count = this.hasMoreTopPage ? 1 : 0;
+        resetIndexes(count);
         if (sources.size() > 0) {
             PaginatedSourceItem paginatedSourceItem = sources.get(sources.size() - 1);
             count += paginatedSourceItem.startPosition + paginatedSourceItem.source.getItemCount();
         }
-
         this.hasMoreBottomPage = hasMoreTopPage && count == 1 ? false : callbacks.hasMoreBottomPage();
         if (this.hasMoreBottomPage) {
             count++;
@@ -381,6 +443,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
 
         int startPosition;
         final ItemControllerSource<?> source;
+        boolean isAttached;
 
         final DisposableObserver<SourceUpdateEvent> updateObserver = new DisposableObserver<SourceUpdateEvent>() {
             @Override
@@ -429,6 +492,20 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
         PaginatedSourceItem(ItemControllerSource<?> source) {
             this.source = source;
             this.source.observeAdapterUpdates().subscribe(updateObserver);
+        }
+
+        public void attach() {
+            if(!this.isAttached) {
+                this.isAttached = true;
+                this.source.onAttached();
+            }
+        }
+
+        public void detach() {
+            if(this.isAttached) {
+                this.source.onDetached();
+                this.isAttached = false;
+            }
         }
     }
 }

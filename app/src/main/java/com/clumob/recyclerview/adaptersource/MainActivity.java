@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
             private boolean loadingNextBottomAdpater;
             private boolean loadingNextTopAdapter;
 
-            private int topPageIndex = 5;
+            private int topPageIndex = 1;
             private int bottomPageIndex = 5;
 
             @Override
@@ -84,10 +84,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void loadNextBottomPage() {
-                if(loadingNextBottomAdpater) {
-                    return;
-                }
-                loadingNextBottomAdpater = true;
                 final Handler handler = new Handler();
                 handler.post(new Runnable() {
                     @Override
