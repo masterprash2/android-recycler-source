@@ -10,9 +10,9 @@ import io.reactivex.observers.DisposableObserver;
  * Created by prashant.rathore on 03/07/18.
  */
 
-public class PaginatedSource extends ItemControllerSource<ItemController> {
+public class PaginatedSource<T extends ItemController> extends ItemControllerSource<T> {
 
-    private final ItemController loadingItemItemController;
+    private final T loadingItemItemController;
     private List<PaginatedSourceItem> sources = new LinkedList<>();
     private final PagenatedCallbacks callbacks;
     private boolean hasMoreBottomPage = false;
@@ -27,7 +27,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
     private Runnable trimPagesRunnable;
     private ItemUpdatePublisher itemUpdatePublisher = new ItemUpdatePublisher();
 
-    public PaginatedSource(ItemController loadingItemItemController, int preloadTriggerSize, PagenatedCallbacks callbacks) {
+    public PaginatedSource(T loadingItemItemController, int preloadTriggerSize, PagenatedCallbacks callbacks) {
         this.loadingItemItemController = loadingItemItemController;
         this.threshHold = preloadTriggerSize;
         this.callbacks = callbacks;
@@ -81,11 +81,11 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
         }
     }
 
-    public void addPageOnTop(ItemControllerSource<?> page) {
+    public void addPageOnTop(ItemControllerSource<T> page) {
         addPageOnTopWhenSafe(page);
     }
 
-    private void addPageOnTopWhenSafe(final ItemControllerSource<?> page) {
+    private void addPageOnTopWhenSafe(final ItemControllerSource<T> page) {
         processWhenSafe(new Runnable() {
             @Override
             public void run() {
@@ -94,7 +94,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
         });
     }
 
-    private void addPageOnTopInternal(ItemControllerSource<?> page) {
+    private void addPageOnTopInternal(ItemControllerSource<T> page) {
         PaginatedSourceItem item = new PaginatedSourceItem(page);
         item.source.setViewInteractor(getViewInteractor());
         final boolean oldHadMoreTopPage = this.hasMoreTopPage;
@@ -146,11 +146,11 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
     }
 
 
-    public void addPageInBottom(ItemControllerSource<?> page) {
+    public void addPageInBottom(ItemControllerSource<T> page) {
         addPagInBottomWhenSafe(page);
     }
 
-    private void addPagInBottomWhenSafe(final ItemControllerSource<?> page) {
+    private void addPagInBottomWhenSafe(final ItemControllerSource<T> page) {
         processWhenSafe(new Runnable() {
             @Override
             public void run() {
@@ -159,7 +159,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
         });
     }
 
-    private void addPageInBottomInternal(ItemControllerSource<?> page) {
+    private void addPageInBottomInternal(ItemControllerSource<T> page) {
         final boolean oldHadMoreBottomPages = this.hasMoreBottomPage;
         this.hasMoreBottomPage = callbacks.hasMoreBottomPage();
         PaginatedSourceItem item = new PaginatedSourceItem(page);
@@ -222,7 +222,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
 
 
     @Override
-    public ItemController getItemForPosition(int position) {
+    public T getItemForPosition(int position) {
         if (position == 0 && hasMoreTopPage) {
             return this.loadingItemItemController;
         } else if (position == getItemCount() - 1 && hasMoreBottomPage) {
@@ -479,7 +479,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
     class PaginatedSourceItem {
 
         int startPosition;
-        final ItemControllerSource<?> source;
+        final ItemControllerSource<T> source;
         boolean isAttached;
 
         final DisposableObserver<SourceUpdateEvent> updateObserver = new DisposableObserver<SourceUpdateEvent>() {
@@ -526,7 +526,7 @@ public class PaginatedSource extends ItemControllerSource<ItemController> {
         }
 
 
-        PaginatedSourceItem(ItemControllerSource<?> source) {
+        PaginatedSourceItem(ItemControllerSource<T> source) {
             this.source = source;
             this.source.observeAdapterUpdates().subscribe(updateObserver);
         }
