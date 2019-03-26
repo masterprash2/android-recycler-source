@@ -1,10 +1,11 @@
 package com.clumob.list.pager;
 
-import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.clumob.listitem.controller.source.ItemControllerSource;
+
+import androidx.viewpager.widget.PagerAdapter;
 
 /**
  * Created by prashant.rathore on 02/07/18.

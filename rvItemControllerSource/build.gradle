@@ -22,7 +22,7 @@ dependencies {
     apt 'com.google.auto.factory:auto-factory:1.0-beta5'
     compileOnly 'com.episode6.hackit.auto.factory:auto-factory-annotations:1.0-beta5'
 
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.9'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
     compile 'junit:junit:4.12'
 }
 

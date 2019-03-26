@@ -2,10 +2,6 @@ package com.clumob.recyclerview.adaptersource;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.subjects.BehaviorSubject;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         recyclerView.setAdapter(createRecyclerViewAdapter());
     }
 
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private RecyclerView.Adapter createRecyclerViewAdapter() {
-        return new RvAdapter(createViewHolderProvider(), createPaginatedSource(), BehaviorSubject.<Boolean>create());
+        return new RvAdapter(createViewHolderProvider(), createPaginatedSource(), this);
     }
 
     private boolean removeAdapter;

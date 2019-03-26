@@ -1,8 +1,6 @@
 package com.clumob.recyclerview.adapter;
 
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +12,10 @@ import com.clumob.listitem.controller.source.SourceUpdateEvent;
 import java.util.Deque;
 import java.util.LinkedList;
 
-import io.reactivex.Observable;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.observers.DisposableObserver;
-import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * Created by prashant.rathore on 28/05/18.
@@ -26,7 +25,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
 
     private final ItemControllerSource itemControllerSource;
     private final ViewHolderProvider viewHolderProvider;
-    private final Observable<Boolean> screenVisibilityObserver;
+    private final LifecycleOwner lifecycleOwner;
     private OnRecyclerItemClickListener itemClickListener;
     private RecyclerView recyclerView;
     private AdapterUpdateObserver adapterUpdateEventObserver;
@@ -43,16 +42,16 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
         }
     };
 
-
     public RvAdapter(ViewHolderProvider viewHolderProvider,
                      ItemControllerSource itemControllerSource,
-                     BehaviorSubject<Boolean> screenVisibilityObserver) {
+                     LifecycleOwner lifecycleOwner) {
         this.itemControllerSource = itemControllerSource;
         this.viewHolderProvider = viewHolderProvider;
         setHasStableIds(this.itemControllerSource.hasStableIds());
         this.itemControllerSource.setViewInteractor(createViewInteractor());
-        this.screenVisibilityObserver = screenVisibilityObserver;
+        this.lifecycleOwner = lifecycleOwner;
     }
+
 
     private ItemControllerSource.ViewInteractor createViewInteractor() {
         return new ItemControllerSource.ViewInteractor() {
@@ -80,8 +79,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
                                 Runnable runnable = deque.pollFirst();
                                 runnable.run();
                                 mHandler.post(this);
-                            }
-                            else {
+                            } else {
                                 processingInProgress = false;
                             }
                         }
@@ -93,6 +91,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
             public void cancelOldProcess(Runnable runnable) {
                 mHandler.removeCallbacks(runnable);
             }
+
         };
     }
 
@@ -132,7 +131,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
     @Override
     public RvViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RvViewHolder<? extends ItemController> rvViewHolder = viewHolderProvider.provideViewHolder(parent, viewType);
-        rvViewHolder.setScreenVisibilityObserver(this.screenVisibilityObserver);
+        rvViewHolder.setLifecycleOwner(this.lifecycleOwner);
         return rvViewHolder;
     }
 

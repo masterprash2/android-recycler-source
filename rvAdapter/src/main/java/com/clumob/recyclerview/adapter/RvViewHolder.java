@@ -1,14 +1,15 @@
 package com.clumob.recyclerview.adapter;
 
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 import com.clumob.listitem.controller.source.ItemController;
 
-import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Created by prashant.rathore on 28/05/18.
@@ -19,9 +20,10 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
     private final View itemView;
     private Controller controller;
     private boolean isScreenInFocus;
-    private Observable<Boolean> screenVisibilityObservable;
-    private Disposable screenVisibilityObserver;
     private boolean isBounded;
+    private LifecycleOwner lifecycle;
+    private LifecycleObserver lifecycleObserver;
+
 
     public RvViewHolder(View itemView) {
         super(itemView);
@@ -37,14 +39,13 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
     }
 
     void bind(Controller controller) {
-        if(isBounded) {
+        if (isBounded) {
             unBind();
         }
         this.controller = controller;
         bindView();
-        if(this.screenVisibilityObserver == null || this.screenVisibilityObserver.isDisposed()) {
-            observeScreenVisibility(this.screenVisibilityObservable);
-        }
+        if (lifecycleObserver == null)
+            observeLifecycle();
         isBounded = true;
     }
 
@@ -71,10 +72,7 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
     void unBind() {
         unBindView();
         controller = null;
-        if (this.screenVisibilityObserver != null) {
-            this.screenVisibilityObserver.dispose();
-        }
-        this.screenVisibilityObserver = null;
+        removeLifecycleObserver();
         this.isScreenInFocus = false;
         isBounded = false;
     }
@@ -82,24 +80,45 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
 
     protected abstract void unBindView();
 
-    void setScreenVisibilityObserver(Observable<Boolean> screenVisibilityObserver) {
-        if (this.screenVisibilityObservable != screenVisibilityObserver) {
-            this.screenVisibilityObservable = screenVisibilityObserver;
-            observeScreenVisibility(screenVisibilityObservable);
-        }
+
+    private void observeLifecycle() {
+        removeLifecycleObserver();
+        lifecycleObserver = new DefaultLifecycleObserver() {
+            @Override
+            public void onCreate(@NonNull LifecycleOwner owner) {
+
+            }
+
+            @Override
+            public void onStart(@NonNull LifecycleOwner owner) {
+
+            }
+
+            @Override
+            public void onResume(@NonNull LifecycleOwner owner) {
+                updateScreenFocus(true);
+            }
+
+            @Override
+            public void onPause(@NonNull LifecycleOwner owner) {
+                updateScreenFocus(false);
+            }
+
+            @Override
+            public void onStop(@NonNull LifecycleOwner owner) {
+
+            }
+
+            @Override
+            public void onDestroy(@NonNull LifecycleOwner owner) {
+
+            }
+        };
+        lifecycle.getLifecycle().addObserver(lifecycleObserver);
     }
 
-    private void observeScreenVisibility(Observable<Boolean> observable) {
-        if (this.screenVisibilityObserver != null) {
-            this.screenVisibilityObserver.dispose();
-        }
-        this.screenVisibilityObserver = observable.subscribe(new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean aBoolean) throws Exception {
-                updateScreenFocus(aBoolean);
-            }
-        });
-
+    public LifecycleOwner getParentLifecycleOwner() {
+        return lifecycle;
     }
 
     private void updateScreenFocus(boolean isInFocus) {
@@ -118,4 +137,21 @@ public abstract class RvViewHolder<Controller extends ItemController> extends Re
     protected void onScreenIsOutOfFocus() {
 
     }
+
+
+    void setLifecycleOwner(LifecycleOwner lifecycle) {
+        if (this.lifecycle != lifecycle) {
+            removeLifecycleObserver();
+            this.lifecycle = lifecycle;
+            observeLifecycle();
+        }
+    }
+
+    private void removeLifecycleObserver() {
+        if (this.lifecycle != null && this.lifecycleObserver != null) {
+            this.lifecycle.getLifecycle().removeObserver(lifecycleObserver);
+            this.lifecycleObserver = null;
+        }
+    }
+
 }
