@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import io.reactivex.subjects.BehaviorSubject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -72,13 +71,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean hasMoreBottomPage() {
-                Log.d("PAGINATED","Has More Bottom Page - " + bottomPageIndex);
+                Log.d("PAGINATED", "Has More Bottom Page - " + bottomPageIndex);
                 return bottomPageIndex > 0;
             }
 
             @Override
             public boolean hasMoreTopPage() {
-                Log.d("PAGINATED","Has More TOP Page - " + topPageIndex);
+                Log.d("PAGINATED", "Has More TOP Page - " + topPageIndex);
                 return topPageIndex > 0;
             }
 
@@ -102,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void loadNextTopPage() {
-                if(loadingNextTopAdapter) {
+                if (loadingNextTopAdapter) {
                     return;
                 }
                 loadingNextTopAdapter = true;
@@ -131,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void unloadingBottomPage(ItemControllerSource<?> source) {
                 bottomPageIndex++;
-                Log.d("PAGINATED", "Unloading Bottom Page " +bottomPageIndex);
+                Log.d("PAGINATED", "Unloading Bottom Page " + bottomPageIndex);
             }
         };
     }
