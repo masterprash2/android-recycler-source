@@ -42,20 +42,31 @@ public class MultiplexSource extends ItemControllerSource<ItemController> {
     }
 
     public void addAdapter(final ItemControllerSource<? extends ItemController> adapter) {
+        addSource(adapters.size(),adapter);
+    }
+
+    public void addSource(final int index, ItemControllerSource<? extends ItemController> adapter) {
         final AdapterAsItem item = new AdapterAsItem(adapter);
         adapter.setViewInteractor(getViewInteractor());
         processWhenSafe(new Runnable() {
             @Override
             public void run() {
-                if (adapters.size() > 0) {
-                    AdapterAsItem previousItem = adapters.get(adapters.size() - 1);
-                    item.startPosition = previousItem.startPosition + previousItem.adapter.getItemCount();
+                if (adapters.size() > index) {
+                    AdapterAsItem previousItem = adapters.get(index);
+                    item.startPosition = previousItem.startPosition;
                 }
-                adapters.add(item);
+                else if(adapters.size() > 0) {
+                    AdapterAsItem lastItem = adapters.get(adapters.size() - 1);
+                    item.startPosition = lastItem.startPosition + lastItem.adapter.getItemCount();
+                }
+                adapters.add(index,item);
+                updateIndexes(item);
                 if(isAttached) {
                     item.adapter.onAttached();
                 }
+                beginUpdates();
                 notifyItemsInserted(item.startPosition, item.adapter.getItemCount());
+                endUpdates();
             }
         });
     }
@@ -127,7 +138,9 @@ public class MultiplexSource extends ItemControllerSource<ItemController> {
                     adapterAsItem.startPosition = nextAdapterStartPosition;
                     nextAdapterStartPosition = adapterAsItem.startPosition + adapterAsItem.adapter.getItemCount();
                 }
+                beginUpdates();
                 notifyItemsRemoved(removePositionStart, remove.adapter.getItemCount());
+                endUpdates();
                 remove.adapter.setViewInteractor(null);
             }
         });

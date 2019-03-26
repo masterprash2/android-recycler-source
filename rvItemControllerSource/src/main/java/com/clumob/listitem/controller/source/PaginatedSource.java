@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableObserver;
 
 /**
@@ -22,7 +24,8 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
     final private int threshHold;
     final private int safeLimit = 20;
 
-    private int lastItemAttached;
+    private int lastItemAttached = -1;
+    private int cachedLastItemAttached = -1;
 
     private Runnable trimPagesRunnable;
     private ItemUpdatePublisher itemUpdatePublisher = new ItemUpdatePublisher();
@@ -33,6 +36,30 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
         this.callbacks = callbacks;
         int itemCount = computeItemCount();
         notifyItemsInserted(0, itemCount);
+        bloatPagesInContentChanges();
+
+    }
+
+    private void bloatPagesInContentChanges() {
+        Disposable subscribe = observeAdapterUpdates().subscribe(new Consumer<SourceUpdateEvent>() {
+
+            int lastIndex;
+
+            @Override
+            public void accept(SourceUpdateEvent sourceUpdateEvent) throws Exception {
+                switch (sourceUpdateEvent.getType()) {
+                    case UPDATE_BEGINS:
+                        lastIndex = cachedLastItemAttached;
+                        break;
+                    case UPDATE_ENDS:
+                        if(lastIndex >= 0) {
+                            bloatPages(this.lastIndex);
+                            lastIndex = -1;
+                        }
+                        break;
+                }
+            }
+        });
     }
 
 
@@ -55,7 +82,7 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
 
     @Override
     public void onItemAttached(int position) {
-        lastItemAttached = position;
+        cachedLastItemAttached = lastItemAttached = position;
         trimPagesSafely(position);
         bloatPages(position);
         if (position == getItemCount() - 1 && hasMoreBottomPage) {

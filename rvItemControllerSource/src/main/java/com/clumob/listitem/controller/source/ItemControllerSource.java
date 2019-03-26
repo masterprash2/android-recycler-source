@@ -200,8 +200,10 @@ public abstract class ItemControllerSource<Controller extends ItemController> {
         public void cancelOldProcess(Runnable runnable);
     }
 
+    public int getLastItemIndex() {
+        return lastItemIndex;
+    }
 
-
-//    ItemControllerSource<Item,Controller> getRootAdapter(int position);
+    //    ItemControllerSource<Item,Controller> getRootAdapter(int position);
 
 }
