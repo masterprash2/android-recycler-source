@@ -324,7 +324,9 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
             while (0 < sources.size()) {
                 PaginatedSourceItem paginatedSourceItem = sources.get(0);
                 if (paginatedSourceItem.startPosition + paginatedSourceItem.source.getItemCount() < safePosition) {
-                    removed.add(sources.remove(0));
+                    PaginatedSourceItem remove = sources.remove(0);
+                    removed.add(remove);
+                    remove.detach();
                     callbacks.unloadingTopPage(paginatedSourceItem.source);
                     success = true;
                     removedItems += paginatedSourceItem.source.getItemCount();
@@ -418,7 +420,9 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
             for (int i = sources.size() - 1; i >= 0; i--) {
                 PaginatedSourceItem paginatedSourceItem = sources.get(i);
                 if (paginatedSourceItem.startPosition > safePosition) {
-                    removedItems.add(sources.remove(i));
+                    PaginatedSourceItem remove = sources.remove(i);
+                    removedItems.add(remove);
+                    remove.detach();
                     removedItemsCount += paginatedSourceItem.source.getItemCount();
                     callbacks.unloadingBottomPage(paginatedSourceItem.source);
                     success = true;
