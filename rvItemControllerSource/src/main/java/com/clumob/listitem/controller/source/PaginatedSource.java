@@ -36,11 +36,11 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
         this.callbacks = callbacks;
         int itemCount = computeItemCount();
         notifyItemsInserted(0, itemCount);
-        bloatPagesInContentChanges();
+        bloatPagesOnContentChange();
 
     }
 
-    private void bloatPagesInContentChanges() {
+    private void bloatPagesOnContentChange() {
         Disposable subscribe = observeAdapterUpdates().subscribe(new Consumer<SourceUpdateEvent>() {
 
             int lastIndex;
@@ -50,6 +50,15 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
                 switch (sourceUpdateEvent.getType()) {
                     case UPDATE_BEGINS:
                         lastIndex = cachedLastItemAttached;
+                        break;
+                    case ITEMS_ADDED:
+                        if(sourceUpdateEvent.getPosition()<= lastIndex)
+                            lastIndex += sourceUpdateEvent.getItemCount();
+                        break;
+                    case ITEMS_REMOVED:
+                        if(sourceUpdateEvent.getPosition() <= lastIndex) {
+                            lastIndex -= sourceUpdateEvent.getItemCount();
+                        }
                         break;
                     case UPDATE_ENDS:
                         if(lastIndex >= 0) {
@@ -197,7 +206,7 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
 
         sources.add(item);
         if (isAttached) {
-            item.source.onAttached();
+            item.attach();
         }
         beginUpdates();
         if (this.hasMoreBottomPage != oldHadMoreBottomPages) {
@@ -326,7 +335,6 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
                 if (paginatedSourceItem.startPosition + paginatedSourceItem.source.getItemCount() < safePosition) {
                     PaginatedSourceItem remove = sources.remove(0);
                     removed.add(remove);
-                    remove.detach();
                     callbacks.unloadingTopPage(paginatedSourceItem.source);
                     success = true;
                     removedItems += paginatedSourceItem.source.getItemCount();
@@ -351,6 +359,9 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
                     }
                     break;
                 }
+            }
+            for(PaginatedSourceItem item : removed) {
+                item.detach();
             }
         }
         return success;
@@ -422,7 +433,6 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
                 if (paginatedSourceItem.startPosition > safePosition) {
                     PaginatedSourceItem remove = sources.remove(i);
                     removedItems.add(remove);
-                    remove.detach();
                     removedItemsCount += paginatedSourceItem.source.getItemCount();
                     callbacks.unloadingBottomPage(paginatedSourceItem.source);
                     success = true;
@@ -442,6 +452,9 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
                     }
                     break;
                 }
+            }
+            for(PaginatedSourceItem item : removedItems) {
+                item.detach();
             }
         }
         return success;

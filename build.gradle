@@ -28,7 +28,7 @@ task clean(type: Delete) {
 
 
 ext {
-    libVersion = "0.15.52";
+    libVersion = "0.15.56";
 }
 
 task makeaar(type: Copy) {
