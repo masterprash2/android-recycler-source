@@ -4,12 +4,12 @@ package com.clumob.listitem.controller.source;
  * Created by prashant.rathore on 02/07/18.
  */
 
-public abstract class ViewModelItemController<VM> implements ItemController {
+public abstract class ItemControllerImpl<VD> implements ItemController {
 
-    public final VM viewModel;
+    public final VD viewData;
 
-    public ViewModelItemController(VM viewModel) {
-        this.viewModel = viewModel;
+    public ItemControllerImpl(VD viewData) {
+        this.viewData = viewData;
     }
 
     @Override
