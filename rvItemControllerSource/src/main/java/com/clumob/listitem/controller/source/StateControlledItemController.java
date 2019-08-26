@@ -103,6 +103,7 @@ public abstract class StateControlledItemController implements ItemController {
             case ATTACHED:
                 currentState = State.DESTROYED;
                 detached();
+                destroyed();
         }
     }
 
