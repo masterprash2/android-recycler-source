@@ -21,7 +21,7 @@ abstract class SourceUpdateEvent {
         abstract fun setType(type: Type): Builder
         abstract fun setPosition(position: Int): Builder
         abstract fun setItemCount(itemCount: Int): Builder
-        abstract fun build(): SourceUpdateEvent?
+        abstract fun build(): SourceUpdateEvent
     }
 
     companion object {

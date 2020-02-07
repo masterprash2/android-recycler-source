@@ -1,6 +1,6 @@
 package com.clumob.listitem.controller.source;
 
-import io.reactivex.observers.DisposableObserver;
+import io.reactivex.disposables.Disposable;
 
 /**
  * Created by prashant.rathore on 24/06/18.
@@ -10,7 +10,7 @@ public class WrapperSource extends ItemControllerSource<ItemController> {
 
     private ItemControllerSource<ItemController> source = new EmptyItemSource();
     private boolean isAttached;
-    private DisposableObserver<SourceUpdateEvent> updateObserver;
+    private Disposable updateObserver;
 
 
     @Override
@@ -37,40 +37,39 @@ public class WrapperSource extends ItemControllerSource<ItemController> {
     }
 
     public void setSource(ItemControllerSource<ItemController> inSource) {
-        if(inSource == null) {
+        if (inSource == null) {
             inSource = new EmptyItemSource();
         }
         final ItemControllerSource<ItemController> newSource = inSource;
         newSource.setViewInteractor(getViewInteractor());
-        processWhenSafe(new Runnable() {
-            @Override
-            public void run() {
-                final ItemControllerSource<ItemController> oldSource = WrapperSource.this.source;
-                final int oldCount = oldSource.getItemCount();
-                final int newCount = newSource.getItemCount();
-                source = newSource;
-                if (isAttached) {
-                    oldSource.onDetached();
-                    observeSourceUpdates();
-                    newSource.onAttached();
-                }
+        processWhenSafe(() -> setSourceImmediate(newSource));
+    }
 
-                oldSource.setViewInteractor(null);
+    private void setSourceImmediate(ItemControllerSource<ItemController> newSource) {
+        final ItemControllerSource<ItemController> oldSource = WrapperSource.this.source;
+        final int oldCount = oldSource.getItemCount();
+        final int newCount = newSource.getItemCount();
+        source = newSource;
+        if (isAttached) {
+            oldSource.onDetached();
+            observeSourceUpdates();
+            newSource.onAttached();
+        }
 
-                if (oldCount == newCount) {
-                    if (oldCount != 0)
-                        notifyItemsChanged(0, newCount);
-                } else if (oldCount > newCount) {
-                    int diff = oldCount - newCount;
-                    notifyItemsChanged(0, diff);
-                    notifyItemsRemoved(newCount, diff);
-                } else {
-                    int diff = newCount - oldCount;
-                    notifyItemsChanged(0, diff);
-                    notifyItemsInserted(oldCount, diff);
-                }
-            }
-        });
+        oldSource.setViewInteractor(null);
+
+        if (oldCount == newCount) {
+            if (oldCount != 0)
+                notifyItemsChanged(0, newCount);
+        } else if (oldCount > newCount) {
+            int diff = oldCount - newCount;
+            notifyItemsChanged(0, diff);
+            notifyItemsRemoved(newCount, diff);
+        } else {
+            int diff = newCount - oldCount;
+            notifyItemsChanged(0, diff);
+            notifyItemsInserted(oldCount, diff);
+        }
     }
 
     @Override
@@ -109,44 +108,32 @@ public class WrapperSource extends ItemControllerSource<ItemController> {
             updateObserver.dispose();
             updateObserver = null;
         }
-        updateObserver = new DisposableObserver<SourceUpdateEvent>() {
-            @Override
-            public void onNext(SourceUpdateEvent event) {
-                final int actualStartPosition = event.getPosition();
-                switch (event.getType()) {
-                    case UPDATE_BEGINS:
-                        beginUpdates();
-                        break;
-                    case ITEMS_CHANGED:
-                        notifyItemsChanged(actualStartPosition, event.getItemCount());
-                        break;
-                    case ITEMS_REMOVED:
-                        notifyItemsRemoved(actualStartPosition, event.getItemCount());
-                        break;
-                    case ITEMS_ADDED:
-                        notifyItemsInserted(actualStartPosition, event.getItemCount());
-                        break;
-                    case ITEMS_MOVED:
-                        break;
-                    case UPDATE_ENDS:
-                        endUpdates();
-                        break;
-                    case HAS_STABLE_IDS:
-                        break;
-                }
-            }
+        updateObserver = this.source.observeAdapterUpdates().subscribe(this::notifyUpdates);
+    }
 
-            @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        };
-        this.source.observeAdapterUpdates().subscribe(updateObserver);
+    private void notifyUpdates(SourceUpdateEvent event) {
+        final int actualStartPosition = event.getPosition();
+        switch (event.getType()) {
+            case UPDATE_BEGINS:
+                beginUpdates();
+                break;
+            case ITEMS_CHANGED:
+                notifyItemsChanged(actualStartPosition, event.getItemCount());
+                break;
+            case ITEMS_REMOVED:
+                notifyItemsRemoved(actualStartPosition, event.getItemCount());
+                break;
+            case ITEMS_ADDED:
+                notifyItemsInserted(actualStartPosition, event.getItemCount());
+                break;
+            case ITEMS_MOVED:
+                break;
+            case UPDATE_ENDS:
+                endUpdates();
+                break;
+            case HAS_STABLE_IDS:
+                break;
+        }
     }
 
 }

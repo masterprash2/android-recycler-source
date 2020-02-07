@@ -1,6 +1,5 @@
 package com.clumob.listitem.controller.source
 
-import com.clumob.listitem.controller.source.SourceUpdateEvent
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import java.util.*
@@ -8,7 +7,7 @@ import java.util.*
 /**
  * Created by prashant.rathore on 03/07/18.
  */
-class PaginatedSource<T : ItemController?>(private val loadingItemItemController: T, private val threshHold: Int, private val callbacks: PagenatedCallbacks) : ItemControllerSource<T>() {
+class PaginatedSource<T : ItemController>(private val loadingItemItemController: T, private val threshHold: Int, private val callbacks: PagenatedCallbacks) : ItemControllerSource<T>() {
     private val sources: MutableList<PaginatedSourceItem> = LinkedList()
     private var hasMoreBottomPage = false
     private var hasMoreTopPage = false
@@ -18,6 +17,16 @@ class PaginatedSource<T : ItemController?>(private val loadingItemItemController
     private var cachedLastItemAttached = -1
     private var trimPagesRunnable: Runnable? = null
     private val itemUpdatePublisher = ItemUpdatePublisher()
+
+    override var viewInteractor: ViewInteractor? = null
+        set(value) {
+            field = value
+            sources.onEach {
+                it.source.viewInteractor = viewInteractor
+            }
+        }
+
+
     private fun bloatPagesOnContentChange() {
         val subscribe = observeAdapterUpdates().subscribe(object : Consumer<SourceUpdateEvent> {
             var lastIndex = 0
@@ -33,21 +42,16 @@ class PaginatedSource<T : ItemController?>(private val loadingItemItemController
                         bloatPages(this.lastIndex)
                         lastIndex = -1
                     }
+//                    SourceUpdateEvent.Type.ITEMS_CHANGED -> TODO("ITEMS_CHANGED")
                 }
             }
 
         })
     }
 
-    override fun setViewInteractor(viewInteractor: ViewInteractor) {
-        super.setViewInteractor(viewInteractor)
-        for (item in sources) {
-            item.source.viewInteractor = viewInteractor
-        }
-    }
 
     override fun onAttached() {
-        loadingItemItemController!!.onCreate(itemUpdatePublisher)
+        loadingItemItemController.onCreate(itemUpdatePublisher)
         for (item in sources) {
             item.source.onAttached()
         }
@@ -84,7 +88,7 @@ class PaginatedSource<T : ItemController?>(private val loadingItemItemController
     }
 
     private fun addPageOnTopWhenSafe(page: ItemControllerSource<T>) {
-        processWhenSafe { addPageOnTopInternal(page) }
+        processWhenSafe(Runnable { addPageOnTopInternal(page) })
     }
 
     private fun addPageOnTopInternal(page: ItemControllerSource<T>) {
@@ -136,7 +140,7 @@ class PaginatedSource<T : ItemController?>(private val loadingItemItemController
     }
 
     private fun addPagInBottomWhenSafe(page: ItemControllerSource<T>) {
-        processWhenSafe { addPageInBottomInternal(page) }
+        processWhenSafe(Runnable { addPageInBottomInternal(page) })
     }
 
     private fun addPageInBottomInternal(page: ItemControllerSource<T>) {
@@ -234,11 +238,11 @@ class PaginatedSource<T : ItemController?>(private val loadingItemItemController
     private fun trimPagesSafely(position: Int) {
         cancelOldProcess(trimPagesRunnable)
         trimPagesRunnable = Runnable { trimPages(position) }
-        processWhenSafe(trimPagesRunnable)
+        processWhenSafe(trimPagesRunnable!!)
     }
 
-    private fun trimPages(detachedItemPosition: Int) {
-        var detachedItemPosition = detachedItemPosition
+    private fun trimPages(dii: Int) {
+        var detachedItemPosition = dii
         if (lastItemAttached < 0) {
             return
         }
@@ -294,7 +298,7 @@ class PaginatedSource<T : ItemController?>(private val loadingItemItemController
     }
 
     fun refreshTopPageAvailability() {
-        viewInteractor.processWhenSafe { refreshTopPageAvailabilityInternal() }
+        viewInteractor!!.processWhenSafe(Runnable { refreshTopPageAvailabilityInternal() })
     }
 
     private fun refreshTopPageAvailabilityInternal() {
@@ -315,7 +319,7 @@ class PaginatedSource<T : ItemController?>(private val loadingItemItemController
     }
 
     fun refreshBottomPageAvailability() {
-        viewInteractor.processWhenSafe { refreshBottomPageAvailabilityInternal() }
+        viewInteractor!!.processWhenSafe(Runnable { refreshBottomPageAvailabilityInternal() })
     }
 
     private fun refreshBottomPageAvailabilityInternal() {
@@ -374,7 +378,7 @@ class PaginatedSource<T : ItemController?>(private val loadingItemItemController
     }
 
     override fun onDetached() {
-        loadingItemItemController!!.onDestroy()
+        loadingItemItemController.onDestroy()
         for (item in sources) {
             item.detach()
         }
@@ -413,8 +417,8 @@ class PaginatedSource<T : ItemController?>(private val loadingItemItemController
         }
     }
 
-    fun updateIndexes(modifiedItem: PaginatedSourceItem) {
-        var modifiedItem = modifiedItem
+    fun updateIndexes(mi: PaginatedSourceItem) {
+        var modifiedItem = mi
         var continueUpdating = false
         for (item in sources) {
             if (continueUpdating) {

@@ -15,7 +15,12 @@ import java.util.LinkedList;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jetbrains.annotations.NotNull;
+
 import io.reactivex.observers.DisposableObserver;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 /**
  * Created by prashant.rathore on 28/05/18.
@@ -60,7 +65,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
             private boolean processingInProgress;
 
             @Override
-            public void processWhenSafe(Runnable runnable) {
+            public void processWhenSafe(@NotNull Runnable runnable) {
                 deque.add(runnable);
                 if (!processingInProgress) {
                     processingInProgress = true;
@@ -120,7 +125,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
     }
 
     boolean isComputingLayout() {
-        return recyclerView == null ? false : recyclerView.isComputingLayout();
+        return recyclerView != null && recyclerView.isComputingLayout();
     }
 
     public void setItemClickListener(OnRecyclerItemClickListener itemClickListener) {

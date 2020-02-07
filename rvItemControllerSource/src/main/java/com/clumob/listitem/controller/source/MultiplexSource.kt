@@ -1,6 +1,5 @@
 package com.clumob.listitem.controller.source
 
-import com.clumob.listitem.controller.source.SourceUpdateEvent
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import java.util.*
@@ -18,12 +17,14 @@ class MultiplexSource : ItemControllerSource<ItemController>() {
         }
     }
 
-    override fun setViewInteractor(viewInteractor: ViewInteractor) {
-        super.setViewInteractor(viewInteractor)
-        for (adapterAsItem in adapters) {
-            adapterAsItem.adapter.viewInteractor = viewInteractor
+    override var viewInteractor: ViewInteractor? = null
+        set(value) {
+            field = value
+            adapters.onEach {
+                it.adapter.viewInteractor = viewInteractor
+            }
         }
-    }
+
 
     override fun onItemAttached(position: Int) {
         val adapterAsItem = decodeAdapterItem(position)
@@ -41,7 +42,7 @@ class MultiplexSource : ItemControllerSource<ItemController>() {
     fun addSource(index: Int, adapter: ItemControllerSource<ItemController>) {
         val item = AdapterAsItem(adapter)
         adapter.viewInteractor = viewInteractor
-        processWhenSafe { addSourceImmediate(index, item) }
+        processWhenSafe(Runnable { addSourceImmediate(index, item) })
     }
 
     private fun addSourceImmediate(index: Int, item: AdapterAsItem) {
@@ -113,7 +114,7 @@ class MultiplexSource : ItemControllerSource<ItemController>() {
     }
 
     fun removeAdapter(removeAdapterAtPosition: Int) {
-        processWhenSafe { removeAdapterImmediate(removeAdapterAtPosition) }
+        processWhenSafe(Runnable { removeAdapterImmediate(removeAdapterAtPosition) })
     }
 
     private fun removeAdapterImmediate(removeAdapterAtPosition: Int) {
