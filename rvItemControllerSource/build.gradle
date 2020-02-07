@@ -1,30 +1,53 @@
 apply plugin: 'java-library'
-apply plugin: "net.ltgt.apt-idea"
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-kapt'
 
 buildscript {
+    ext.kotlin_version = '1.3.61'
     repositories {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.13"
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.21"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+
+kapt {
+    correctErrorTypes = true
+}
+
 
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    apt 'com.google.auto.value:auto-value:1.5.2'
+    kapt 'com.google.auto.value:auto-value:1.6.5'
     compileOnly 'com.jakewharton.auto.value:auto-value-annotations:1.5'
 
-    apt 'com.google.auto.factory:auto-factory:1.0-beta5'
+    kapt 'com.google.auto.factory:auto-factory:1.0-beta7'
     compileOnly 'com.episode6.hackit.auto.factory:auto-factory-annotations:1.0-beta5'
 
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
-    compile 'junit:junit:4.12'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.11'
+    testImplementation 'junit:junit:4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"

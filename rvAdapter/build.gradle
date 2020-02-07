@@ -1,5 +1,10 @@
 apply plugin: 'com.android.library'
 
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+
 android {
     compileSdkVersion 28
 
@@ -26,20 +31,20 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.core:core:1.0.1'
+    implementation 'androidx.core:core:1.2.0'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.11'
 
-    androidTestImplementation 'androidx.annotation:annotation:1.0.2'
+    androidTestImplementation 'androidx.annotation:annotation:1.1.0'
     implementation 'javax.inject:javax.inject:1'
 
 
-    implementation "androidx.lifecycle:lifecycle-runtime:2.0.0"
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.0.0"
-    annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.0.0"
+    implementation "androidx.lifecycle:lifecycle-runtime:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
+    annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.2.0"
 
-    compile project(path: ':rvItemControllerSource')
+    implementation project(path: ':rvItemControllerSource')
 }
