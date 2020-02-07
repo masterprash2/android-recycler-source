@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     protected void bindView() {
-                        TextView tv = getItemView().findViewById(R.id.text);
+                        TextView tv = itemView.findViewById(R.id.text);
                         tv.setText(getController().data);
                     }
 

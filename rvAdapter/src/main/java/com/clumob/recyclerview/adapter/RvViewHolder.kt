@@ -10,7 +10,7 @@ import com.clumob.listitem.controller.source.ItemController
 /**
  * Created by prashant.rathore on 28/05/18.
  */
-abstract class RvViewHolder<Controller : ItemController?>(val itemView: View) : RecyclerView.ViewHolder(itemView) {
+abstract class RvViewHolder<Controller : ItemController>(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var controller: Controller? = null
         private set
     private var isScreenInFocus = false
@@ -19,8 +19,11 @@ abstract class RvViewHolder<Controller : ItemController?>(val itemView: View) : 
         private set
     private var lifecycleObserver: LifecycleObserver? = null
 
+    fun bind(itemController: ItemController) {
+        bindWithType(itemController as Controller)
+    }
 
-    fun bind(controller: Controller) {
+    private fun bindWithType(controller: Controller) {
         if (isBounded) {
             unBind()
         }
