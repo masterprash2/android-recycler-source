@@ -3,6 +3,7 @@ package com.clumob.listitem.controller.source
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Created by prashant.rathore on 24/06/18.
@@ -25,12 +26,12 @@ class ArraySource<Controller : ItemController> : ItemControllerSource<Controller
     val items: List<Controller>
         get() = controller
 
-    fun setItems(items: MutableList<Controller>?) {
+    fun setItems(items: List<Controller>?) {
         switchItems(items)
     }
 
-    private fun switchItems(items: MutableList<Controller>?, useDiffProcess: Boolean) {
-        val newItems: MutableList<Controller> = items ?: ArrayList()
+    private fun switchItems(items: List<Controller>?, useDiffProcess: Boolean) {
+        val newItems = ArrayList(items ?: listOf())
         processWhenSafe(Runnable { switchItemImmediate(useDiffProcess, newItems) })
     }
 
@@ -64,7 +65,7 @@ class ArraySource<Controller : ItemController> : ItemControllerSource<Controller
         oldItems.onEach { it.onDestroy() }
     }
 
-    fun switchItems(items: MutableList<Controller>?) {
+    fun switchItems(items: List<Controller>?) {
         switchItems(items, false)
     }
 

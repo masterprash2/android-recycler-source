@@ -23,6 +23,8 @@ abstract class RvViewHolder<Controller : ItemController>(itemView: View) : Recyc
         bindWithType(itemController as Controller)
     }
 
+    fun getItemView(): View = itemView
+
     private fun bindWithType(controller: Controller) {
         if (isBounded) {
             unBind()
@@ -39,13 +41,13 @@ abstract class RvViewHolder<Controller : ItemController>(itemView: View) : Recyc
         controller!!.onAttach(this)
     }
 
-    protected fun onAttached() {}
+    protected open fun onAttached() {}
     fun onDetach() {
         controller!!.onDetach(this)
         onDetached()
     }
 
-    fun onDetached() {}
+    protected open fun onDetached() {}
     fun unBind() {
         unBindView()
         controller = null
@@ -83,8 +85,8 @@ abstract class RvViewHolder<Controller : ItemController>(itemView: View) : Recyc
         }
     }
 
-    protected fun onScreenIsInFocus() {}
-    protected fun onScreenIsOutOfFocus() {}
+    protected open fun onScreenIsInFocus() {}
+    protected open fun onScreenIsOutOfFocus() {}
     fun setLifecycleOwner(lifecycle: LifecycleOwner) {
         if (parentLifecycleOwner !== lifecycle) {
             removeLifecycleObserver()
