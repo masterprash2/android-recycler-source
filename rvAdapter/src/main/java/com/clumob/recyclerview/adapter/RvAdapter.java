@@ -203,11 +203,9 @@ public class RvAdapter extends RecyclerView.Adapter<RvViewHolder> {
                     notifyItemRangeChanged(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_REMOVED:
-//                    Log.d("PAGINATEDR", "Position: " + sourceUpdateEvent.getPosition()+ "Removed " + sourceUpdateEvent.getItemCount() + " ItemCount:" + getItemCount());
                     notifyItemRangeRemoved(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_ADDED:
-//                    Log.d("PAGINATEDR", "Position: " + sourceUpdateEvent.getPosition()+ " Added " + sourceUpdateEvent.getItemCount() + " ItemCount:" + getItemCount());
                     notifyItemRangeInserted(sourceUpdateEvent.getPosition(), sourceUpdateEvent.getItemCount());
                     break;
                 case ITEMS_MOVED:
