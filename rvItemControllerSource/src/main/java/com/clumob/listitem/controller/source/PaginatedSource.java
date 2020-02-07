@@ -52,7 +52,7 @@ public class PaginatedSource<T extends ItemController> extends ItemControllerSou
                         lastIndex = cachedLastItemAttached;
                         break;
                     case ITEMS_ADDED:
-                        if(sourceUpdateEvent.getPosition()<= lastIndex)
+                        if(sourceUpdateEvent.getPosition() <= lastIndex)
                             lastIndex += sourceUpdateEvent.getItemCount();
                         break;
                     case ITEMS_REMOVED:
