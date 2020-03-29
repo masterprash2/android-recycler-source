@@ -14,7 +14,7 @@ import java.util.*
 
 class RvAdapter constructor(val viewHolderProvider: ViewHolderProvider?,
                             val itemControllerSource: ItemControllerSource<*>,
-                            val lifecycleOwner: LifecycleOwner?) : RecyclerView.Adapter<RvViewHolder<*>>() {
+                            val lifecycleOwner: LifecycleOwner?) : RecyclerView.Adapter<RvViewHolder>() {
 
 
     private var itemClickListener: OnRecyclerItemClickListener? = null
@@ -80,20 +80,20 @@ class RvAdapter constructor(val viewHolderProvider: ViewHolderProvider?,
         this.itemClickListener = itemClickListener
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RvViewHolder<*> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RvViewHolder {
         val rvViewHolder = viewHolderProvider!!.provideViewHolder(parent, viewType)
         rvViewHolder.setLifecycleOwner(lifecycleOwner!!)
         return rvViewHolder
     }
 
 
-    override fun onViewAttachedToWindow(holder: RvViewHolder<*>) {
+    override fun onViewAttachedToWindow(holder: RvViewHolder) {
         super.onViewAttachedToWindow(holder)
-        holder.onAttach()
+        holder.performAttachToWindow()
         itemControllerSource.onItemAttached(holder.adapterPosition)
     }
 
-    override fun onBindViewHolder(holder: RvViewHolder<*>, position: Int) {
+    override fun onBindViewHolder(holder: RvViewHolder, position: Int) {
         val item = itemControllerSource.getItem(position)
         holder.itemView.setOnClickListener(onClickListener)
         holder.bind(item)
@@ -104,18 +104,18 @@ class RvAdapter constructor(val viewHolderProvider: ViewHolderProvider?,
     }
 
 
-    override fun onViewDetachedFromWindow(holder: RvViewHolder<*>) {
-        holder.onDetach()
+    override fun onViewDetachedFromWindow(holder: RvViewHolder) {
+        holder.performDetachFromWindow()
         super.onViewDetachedFromWindow(holder)
     }
 
-    override fun onViewRecycled(holder: RvViewHolder<*>) {
+    override fun onViewRecycled(holder: RvViewHolder) {
         holder.unBind()
         super.onViewRecycled(holder)
     }
 
     override fun getItemViewType(position: Int): Int { //        Log.d("PAGINATEDIP"," "+position);
-        return itemControllerSource!!.getItemType(position)
+        return itemControllerSource.getItemType(position)
     }
 
     override fun getItemCount(): Int {
@@ -132,11 +132,11 @@ class RvAdapter constructor(val viewHolderProvider: ViewHolderProvider?,
         }
         adapterUpdateEventObserver = AdapterUpdateObserver()
         itemControllerSource.observeAdapterUpdates().subscribe(adapterUpdateEventObserver!!)
-        itemControllerSource.onAttached()
+        itemControllerSource.onAttachToView()
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        itemControllerSource.onDetached()
+        itemControllerSource.onDetachFromView()
         this.recyclerView = null
         if (adapterUpdateEventObserver != null) {
             adapterUpdateEventObserver!!.dispose()

@@ -7,7 +7,11 @@ import java.util.*
 /**
  * Created by prashant.rathore on 03/07/18.
  */
-class PaginatedSource<T : ItemController>(private val loadingItemItemController: T, private val threshHold: Int, private val callbacks: PagenatedCallbacks) : ItemControllerSource<T>() {
+class PaginatedSource<T : ItemController>(private val loadingItemItemController: T,
+                                          private val threshHold: Int,
+                                          private val callbacks: PagenatedCallbacks)
+    : ItemControllerSource<T>() {
+
     private val sources: MutableList<PaginatedSourceItem> = LinkedList()
     private var hasMoreBottomPage = false
     private var hasMoreTopPage = false
@@ -50,10 +54,10 @@ class PaginatedSource<T : ItemController>(private val loadingItemItemController:
     }
 
 
-    override fun onAttached() {
-        loadingItemItemController.onCreate(itemUpdatePublisher)
+    override fun onAttachToView() {
+        loadingItemItemController.performCreate(itemUpdatePublisher)
         for (item in sources) {
-            item.source.onAttached()
+            item.source.onAttachToView()
         }
         isAttached = true
     }
@@ -291,7 +295,7 @@ class PaginatedSource<T : ItemController>(private val loadingItemItemController:
                 }
             }
             for (item in removed) {
-                item.detach()
+                item.destroy()
             }
         }
         return success
@@ -371,16 +375,16 @@ class PaginatedSource<T : ItemController>(private val loadingItemItemController:
                 }
             }
             for (item in removedItems) {
-                item.detach()
+                item.destroy()
             }
         }
         return success
     }
 
-    override fun onDetached() {
-        loadingItemItemController.onDestroy()
+    override fun onDetachFromView() {
+        loadingItemItemController.performDestroy()
         for (item in sources) {
-            item.detach()
+            item.destroy()
         }
         isAttached = false
     }
@@ -453,13 +457,13 @@ class PaginatedSource<T : ItemController>(private val loadingItemItemController:
         fun attach() {
             if (!this.isAttached) {
                 this.isAttached = true
-                source.onAttached()
+                source.onAttachToView()
             }
         }
 
-        fun detach() {
+        fun destroy() {
             if (this.isAttached) {
-                source.onDetached()
+                source.onDetachFromView()
                 this.isAttached = false
             }
         }

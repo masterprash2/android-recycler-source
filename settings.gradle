@@ -1,1 +1,1 @@
-include ':app', ':rvAdapter', ':rvItemControllerSource', ':viewPager'
+include ':app', ':rvAdapter', ':rvItemControllerSource'

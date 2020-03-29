@@ -1,6 +1,5 @@
 package com.clumob.listitem.controller.source
 
-import com.clumob.listitem.controller.source.SourceUpdateEvent
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 
@@ -12,10 +11,10 @@ class HeaderWithChildrenSource : ItemControllerSource<ItemController>() {
     private val childrenItemSource: AdapterAsItem? = null
     private var isAttached = false
 
-    override fun onAttached() {
+    override fun onAttachToView() {
         isAttached = true
-        headerItemSource?.adapter?.onAttached()
-        childrenItemSource?.adapter?.onAttached()
+        headerItemSource?.adapter?.onAttachToView()
+        childrenItemSource?.adapter?.onAttachToView()
     }
 
     override var viewInteractor: ViewInteractor? = null
@@ -62,9 +61,9 @@ class HeaderWithChildrenSource : ItemControllerSource<ItemController>() {
 //        AdapterAsItem adapterAsItem = decodeAdapterItem(position);
 //        adapterAsItem.adapter.onItemDetached(position - adapterAsItem.startPosition);
 //    }
-    override fun onDetached() {
-        headerItemSource?.adapter?.onDetached()
-        childrenItemSource?.adapter?.onDetached()
+    override fun onDetachFromView() {
+        headerItemSource?.adapter?.onDetachFromView()
+        childrenItemSource?.adapter?.onDetachFromView()
         isAttached = false
     }
 

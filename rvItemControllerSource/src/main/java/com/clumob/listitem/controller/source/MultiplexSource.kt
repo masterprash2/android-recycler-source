@@ -10,10 +10,10 @@ import java.util.*
 class MultiplexSource : ItemControllerSource<ItemController>() {
     private val adapters: MutableList<AdapterAsItem> = ArrayList()
     private var isAttached = false
-    override fun onAttached() {
+    override fun onAttachToView() {
         isAttached = true
         for (item in adapters) {
-            item.adapter.onAttached()
+            item.adapter.onAttachToView()
         }
     }
 
@@ -56,7 +56,7 @@ class MultiplexSource : ItemControllerSource<ItemController>() {
         adapters.add(index, item)
         updateIndexes(item)
         if (isAttached) {
-            item.adapter.onAttached()
+            item.adapter.onAttachToView()
         }
         beginUpdates()
         notifyItemsInserted(item.startPosition, item.adapter.itemCount)
@@ -81,9 +81,9 @@ class MultiplexSource : ItemControllerSource<ItemController>() {
 //        AdapterAsItem adapterAsItem = decodeAdapterItem(position);
 //        adapterAsItem.adapter.onItemDetached(position - adapterAsItem.startPosition);
 //    }
-    override fun onDetached() {
+    override fun onDetachFromView() {
         for (item in adapters) {
-            item.adapter.onDetached()
+            item.adapter.onDetachFromView()
         }
         isAttached = false
     }

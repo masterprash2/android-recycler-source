@@ -8,10 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.clumob.listitem.controller.source.ArraySource;
 import com.clumob.listitem.controller.source.ItemController;
 import com.clumob.listitem.controller.source.ItemControllerSource;
-import com.clumob.listitem.controller.source.ItemUpdatePublisher;
 import com.clumob.listitem.controller.source.MultiplexSource;
 import com.clumob.listitem.controller.source.PaginatedSource;
 import com.clumob.recyclerview.adapter.RvAdapter;
@@ -21,11 +25,6 @@ import com.clumob.recyclerview.adapter.ViewHolderProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -176,36 +175,12 @@ public class MainActivity extends AppCompatActivity {
         return new ItemItemController(data);
     }
 
-    static class ItemItemController implements ItemController {
+    static class ItemItemController extends ItemController {
 
         final String data;
 
-        public ItemItemController(String data) {
+        ItemItemController(String data) {
             this.data = data;
-        }
-
-        public String getData() {
-            return data;
-        }
-
-        @Override
-        public void onCreate(ItemUpdatePublisher updatePublisher) {
-
-        }
-
-        @Override
-        public void onAttach(Object so) {
-
-        }
-
-        @Override
-        public void onDetach(Object source) {
-
-        }
-
-        @Override
-        public void onDestroy() {
-
         }
 
         @Override
@@ -217,20 +192,59 @@ public class MainActivity extends AppCompatActivity {
         public long getId() {
             return 0;
         }
+
+        @Override
+        protected void onCreate() {
+            super.onCreate();
+            Log.d("onCreate", data + " - " + this.toString().split("@")[1]);
+        }
+
+        @Override
+        protected void onStartAttach() {
+            super.onStartAttach();
+            Log.d("onStart", data + " - " + this.toString().split("@")[1]);
+        }
+
+        @Override
+        protected void onResume() {
+            super.onResume();
+            Log.d("onResume", data + " - " + this.toString().split("@")[1]);
+        }
+
+        @Override
+        protected void onPause() {
+            super.onPause();
+            Log.d("onPause", data + " - " + this.toString().split("@")[1]);
+        }
+
+        @Override
+        protected void onStopDetach() {
+            Log.d("onStop", data + " - " + this.toString().split("@")[1]);
+            super.onStopDetach();
+        }
+
+        @Override
+        protected void onDestroy() {
+            Log.d("onDestroy", data + " - " + this.toString().split("@")[1]);
+            super.onDestroy();
+        }
     }
 
 
     private ViewHolderProvider createViewHolderProvider() {
         return new ViewHolderProvider() {
             @Override
-            public RvViewHolder<ItemItemController> provideViewHolder(ViewGroup parent, int type) {
+            public RvViewHolder provideViewHolder(ViewGroup parent, int type) {
                 View inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
-                return new RvViewHolder<ItemItemController>(inflate) {
+                return new RvViewHolder(inflate) {
+                    {
+                        itemView.setBackgroundColor(new Random().nextInt(Integer.MAX_VALUE));
+                    }
 
                     @Override
                     protected void bindView() {
                         TextView tv = itemView.findViewById(R.id.text);
-                        tv.setText(getController().data);
+                        tv.setText(this.<ItemItemController>getController().data);
                     }
 
                     @Override

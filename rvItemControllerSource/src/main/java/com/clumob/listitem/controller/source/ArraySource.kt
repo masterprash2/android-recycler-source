@@ -13,12 +13,12 @@ class ArraySource<Controller : ItemController> : ItemControllerSource<Controller
     private var isAttached = false
     private val itemUpdatePublisher = ItemUpdatePublisher()
     private var compositeDisposable: CompositeDisposable? = null
-    override fun onAttached() {
+    override fun onAttachToView() {
         isAttached = true
         compositeDisposable = CompositeDisposable()
         compositeDisposable!!.add(observeItemUpdates())
         for (item in controller) {
-            item.onCreate(itemUpdatePublisher)
+            item.performCreate(itemUpdatePublisher)
         }
     }
 
@@ -59,10 +59,11 @@ class ArraySource<Controller : ItemController> : ItemControllerSource<Controller
         }
         endUpdates()
         if (isAttached) {
-            newItems.onEach { it.onCreate(itemUpdatePublisher) }
+            newItems.onEach { it.performCreate(itemUpdatePublisher) }
         }
+
         oldItems.removeAll(retained)
-        oldItems.onEach { it.onDestroy() }
+        oldItems.onEach { it.performDestroy() }
     }
 
     fun switchItems(items: List<Controller>?) {
@@ -106,10 +107,10 @@ class ArraySource<Controller : ItemController> : ItemControllerSource<Controller
 
     private fun replaceItemWhenSafe(index: Int, item: Controller) {
         val set = controller.set(index, item)
-        set.onDestroy()
+        set.performDestroy()
         notifyItemsChanged(index, 1)
         if (isAttached) {
-            item.onCreate(itemUpdatePublisher)
+            item.performCreate(itemUpdatePublisher)
         }
     }
 
@@ -144,9 +145,9 @@ class ArraySource<Controller : ItemController> : ItemControllerSource<Controller
         })
     }
 
-    override fun onDetached() {
+    override fun onDetachFromView() {
         compositeDisposable!!.dispose()
         isAttached = false
-        controller.onEach { it.onDestroy() }
+        controller.onEach { it.performDestroy() }
     }
 }

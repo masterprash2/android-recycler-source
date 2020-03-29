@@ -10,22 +10,20 @@ import com.clumob.listitem.controller.source.ItemController
 /**
  * Created by prashant.rathore on 28/05/18.
  */
-abstract class RvViewHolder<Controller : ItemController>(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    var controller: Controller? = null
-        private set
-    private var isScreenInFocus = false
+abstract class RvViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+    private var controller: ItemController? = null
+
+    fun <T : ItemController> getController(): T = controller as T
+
+    private var isScreenResumed = false
+    private var isScreenStared = false
     private var isBounded = false
     var parentLifecycleOwner: LifecycleOwner? = null
         private set
     private var lifecycleObserver: LifecycleObserver? = null
 
-    fun bind(itemController: ItemController) {
-        bindWithType(itemController as Controller)
-    }
-
-    fun getItemView(): View = itemView
-
-    private fun bindWithType(controller: Controller) {
+    internal fun bind(controller: ItemController) {
         if (isBounded) {
             unBind()
         }
@@ -36,57 +34,107 @@ abstract class RvViewHolder<Controller : ItemController>(itemView: View) : Recyc
     }
 
     protected abstract fun bindView()
-    fun onAttach() {
-        onAttached()
-        controller!!.onAttach(this)
+
+    internal fun performAttachToWindow() {
+        onAttachedToWindow()
+        if(isScreenStared) {
+            onScreenStarted()
+            if(isScreenResumed) {
+                onScreenResumed()
+            }
+        }
     }
 
-    protected open fun onAttached() {}
-    fun onDetach() {
-        controller!!.onDetach(this)
-        onDetached()
+    protected open fun onAttachedToWindow() {}
+
+    internal fun performDetachFromWindow() {
+        onScreenStopped()
+        onDetachedFromWindow()
     }
 
-    protected open fun onDetached() {}
+
+    protected open fun onDetachedFromWindow() {}
+
     fun unBind() {
         unBindView()
+        performDetachFromWindow()
         controller = null
         removeLifecycleObserver()
-        isScreenInFocus = false
+        isScreenResumed = false
+        isScreenStared = false
         isBounded = false
     }
 
     protected abstract fun unBindView()
+
     private fun observeLifecycle() {
         removeLifecycleObserver()
         lifecycleObserver = object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {}
-            override fun onStart(owner: LifecycleOwner) {}
+            override fun onStart(owner: LifecycleOwner) {
+                updateScreenStartState(true)
+            }
             override fun onResume(owner: LifecycleOwner) {
-                updateScreenFocus(true)
+                updateScreenResumeState(true)
             }
 
             override fun onPause(owner: LifecycleOwner) {
-                updateScreenFocus(false)
+                updateScreenResumeState(false)
             }
 
-            override fun onStop(owner: LifecycleOwner) {}
+            override fun onStop(owner: LifecycleOwner) {
+                updateScreenStartState(false)
+            }
             override fun onDestroy(owner: LifecycleOwner) {}
         }
         parentLifecycleOwner!!.lifecycle.addObserver(lifecycleObserver!!)
     }
 
-    private fun updateScreenFocus(isInFocus: Boolean) {
-        isScreenInFocus = isInFocus
-        if (isScreenInFocus) {
-            onScreenIsInFocus()
-        } else {
-            onScreenIsOutOfFocus()
+    private fun updateScreenStartState(isStarted : Boolean) {
+        this.isScreenStared = isStarted
+        if(isScreenStared) onScreenStarted()
+        else onScreenStopped()
+    }
+
+    private fun onScreenStarted() {
+        when (controller?.state) {
+            ItemController.State.CREATE,
+            ItemController.State.STOP -> controller!!.performStart(this)
         }
     }
 
-    protected open fun onScreenIsInFocus() {}
-    protected open fun onScreenIsOutOfFocus() {}
+    private fun updateScreenResumeState(isInFocus: Boolean) {
+        isScreenResumed = isInFocus
+        if (isScreenResumed) {
+            onScreenResumed()
+        } else {
+            onScreenPaused()
+        }
+    }
+
+    protected open fun onScreenResumed() {
+        when (controller?.state) {
+            ItemController.State.START,
+            ItemController.State.RESUME,
+            ItemController.State.PAUSE -> controller!!.performResume()
+        }
+    }
+
+    private fun onScreenStopped() {
+        onScreenPaused()
+        when (controller?.state) {
+            ItemController.State.STOP,
+            ItemController.State.PAUSE -> controller!!.performStop(this)
+        }
+    }
+
+    protected open fun onScreenPaused() {
+        when (controller?.state) {
+            ItemController.State.RESUME,
+            ItemController.State.PAUSE -> controller!!.performPause()
+        }
+    }
+
     fun setLifecycleOwner(lifecycle: LifecycleOwner) {
         if (parentLifecycleOwner !== lifecycle) {
             removeLifecycleObserver()

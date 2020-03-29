@@ -21,7 +21,7 @@ abstract class ItemControllerSource<Controller : ItemController> {
     var lastItemIndex = 0
         private set
 
-    abstract fun onAttached()
+    abstract fun onAttachToView()
     abstract fun onItemAttached(position: Int)
     abstract fun hasStableIds(): Boolean
     fun observeAdapterUpdates(): Observable<SourceUpdateEvent> {
@@ -77,7 +77,7 @@ abstract class ItemControllerSource<Controller : ItemController> {
 
     abstract fun getItemForPosition(position: Int): Controller
     //    public abstract void onItemDetached(int position);
-    abstract fun onDetached()
+    abstract fun onDetachFromView()
 
     fun notifyItemsInserted(startPosition: Int, itemsInserted: Int) {
         resetCachedItems(startPosition)

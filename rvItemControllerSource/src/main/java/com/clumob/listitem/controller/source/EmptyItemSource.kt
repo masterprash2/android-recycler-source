@@ -4,7 +4,7 @@ package com.clumob.listitem.controller.source
  * Created by prashant.rathore on 17/12/18.
  */
 class EmptyItemSource : ItemControllerSource<ItemController>() {
-    override fun onAttached() {}
+    override fun onAttachToView() {}
     override fun onItemAttached(position: Int) {}
     override fun hasStableIds(): Boolean {
         return false
@@ -18,7 +18,7 @@ class EmptyItemSource : ItemControllerSource<ItemController>() {
         throw Exception("Its an EmptySource. Should not come here $position")
     }
 
-    override fun onDetached() {}
+    override fun onDetachFromView() {}
     override fun computeItemCount(): Int {
         return 0
     }

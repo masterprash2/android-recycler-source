@@ -14,10 +14,10 @@ public class WrapperSource extends ItemControllerSource<ItemController> {
 
 
     @Override
-    public void onAttached() {
+    public void onAttachToView() {
         isAttached = true;
         observeSourceUpdates();
-        source.onAttached();
+        source.onAttachToView();
     }
 
     @Override
@@ -51,9 +51,9 @@ public class WrapperSource extends ItemControllerSource<ItemController> {
         final int newCount = newSource.getItemCount();
         source = newSource;
         if (isAttached) {
-            oldSource.onDetached();
+            oldSource.onDetachFromView();
             observeSourceUpdates();
-            newSource.onAttached();
+            newSource.onAttachToView();
         }
 
         oldSource.setViewInteractor(null);
@@ -89,8 +89,8 @@ public class WrapperSource extends ItemControllerSource<ItemController> {
 //    }
 
     @Override
-    public void onDetached() {
-        source.onDetached();
+    public void onDetachFromView() {
+        source.onDetachFromView();
         isAttached = false;
         if (updateObserver != null) {
             updateObserver.dispose();
